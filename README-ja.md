@@ -72,7 +72,7 @@ https://github.com/user-attachments/assets/d83ed282-73db-417d-b25c-c5a701635bcc
 
 ### • AviUtl ExEdit2のプレビュー
 
-<img src="./icons/aviutl2-preview.png" width="70%">
+<img src="./icons/aviutl2-preview.png">
 
 ## 利用規約
 
