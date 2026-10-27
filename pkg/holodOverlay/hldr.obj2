@@ -1,0 +1,1220 @@
+--[[
+GNU Affero General Public License v3.0
+
+holodOverlay - A "hololive Dreams"-style video creation tool
+Copyright (C) 2026 TootieJin
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+--]]
+
+-- holodOverlay by TootieJin (v{version})
+-- https://github.com/TootieJin/holodOverlay
+
+@設定
+--label:holodOverlay
+--information:holodOverlay by TootieJin (v{version})
+--file@file:YAGOOファイル
+--track@offset:オフセット,-99999.99,99999.99,216.00,0.01
+--check@cache:キャッシュ,1
+--check@ignoreWarn:警告を無視する,0
+--check@watermark:透かし,1
+--separator:ライブスキン
+--track@skinType:スキンタイプ,1,56,1,1
+
+Monospace = require("Monospace")
+local big = require("bignumber")
+
+Font = {
+  "{font-1}",
+  "{font-2}"
+}
+
+--[[
+local function toBool(v)
+  return (v == true) or (type(v) == "number" and v ~= 0)
+end
+--]]
+
+function Round(x)
+  return x >= 0 and math.floor(x + 0.5) or math.ceil(x - 0.5)
+end 
+
+function ToInt(v)
+  return (type(v) == "number" and Round(v)) or 0
+end
+
+function SHA256(file)
+  local sha = require("sha2")
+  local f = assert(io.open(file, "rb"))
+  local content = f:read("*a")
+  f:close()
+  return sha.sha256(content)
+end
+
+SKINTYPE = ToInt(skinType)
+
+Code = { -- internal ID, score, life, pause, decoration
+  "default-01", 0x28c3ff, 0x28c3ff, 0x5fdcf0, 0,
+  "00001", 0x6878ff, 0x6878ff, 0xfd368a, 1, -- Tokina Sora
+  "00002", 0xff6187, 0xff6187, 0xfd91b7, 1, -- Robocosan
+  "00004", 0xabe64d, 0xabe64d, 0xff4991, 1, -- AZKi
+  "00005", 0xe5395b, 0xe5395b, 0x0046b3, 1, -- Sakura Miko
+  "00006", 0x93d5f2, 0x93d5f2, 0x65637f, 1, -- Hoshimachi Suisei
+  "00007", 0xffcb30, 0xffcb30, 0x8dd600, 1, -- Aki Rosenthal
+  "00010", 0xdd305b, 0xdd305b, 0x8a6f72, 1, -- Akai Haato
+  "00011", 0xff5487, 0xff5487, 0xff85bc, 1, -- Shirakami Fubuki
+  "00012", 0xe5ce00, 0xe5ce00, 0x5cd0dc, 1, -- Natsuiro Matsuri
+  "00013", 0xf081a3, 0xf081a3, 0x634c59, 1, -- Nakiri Ayame
+  "00014", 0xdb3131, 0xdb3131, 0x575769, 1, -- Yuzuki Choco
+  "00015", 0xff909e, 0xff909e, 0xdd3654, 1, -- Oozora Subaru
+  "00016", 0xd866ed, 0xd866ed, 0x9a70f3, 1, -- Ookami Mio
+  "00017", 0xffcd28, 0xffcd28, 0xff637c, 1, -- Nekomata Okayu
+  "00018", 0x75c0ff, 0x75c0ff, 0x2b2d80, 1, -- Inugami Korone
+  "00019", 0x57a9ff, 0x57a9ff, 0x97daef, 1, -- Usada Pekora
+  "00021", 0xffab2d, 0xffab2d, 0x4ab0e9, 1, -- Shiranui Flare
+  "00022", 0xa5b5b7, 0xa5b5b7, 0x4f6e8f, 1, -- Shirogane Noel
+  "00023", 0xc2153b, 0xc2153b, 0x453748, 1, -- Houshou Marine
+  "00026", 0xe2d065, 0xe2d065, 0xff8f96, 1, -- Tsunomaki Watame
+  "00027", 0xb77fff, 0xb77fff, 0xfc96dc, 1, -- Tokoyami Towa
+  "00028", 0xff93d0, 0xff93d0, 0x99c6ff, 1, -- Himemori Luna
+  "00030", 0x49aaff, 0x49aaff, 0x5cceff, 1, -- Yukihana Lamy
+  "00031", 0xffc633, 0xffc633, 0xff852d, 1, -- Momosuzu Nene
+  "00032", 0x757575, 0x757575, 0x91c1b1, 1, -- Shishiro Botan
+  "00034", 0xed0043, 0xed0043, 0x0083eb, 1, -- Omaru Polka
+  "00035", 0x9464d2, 0x9464d2, 0x493a58, 1, -- La+ Darknesss
+  "00036", 0x831550, 0x831550, 0x41282e, 1, -- Takane Lui
+  "00037", 0xff95c8, 0xff95c8, 0x52dfce, 1, -- Hakui Koyori
+  "00039", 0x5ecfc8, 0x5ecfc8, 0xd5c293, 1, -- Kazama Iroha
+  "03001", 0xffaaaa, 0xffaaaa, 0x9f7060, 1, -- Ayunda Risu
+  "03002", 0xaa83ff, 0xaa83ff, 0xfad443, 1, -- Moona Hoshinova
+  "03003", 0x9cdf36, 0x9cdf36, 0xfda2bb, 1, -- Airani Iofifteen
+  "03004", 0xc40041, 0xc40041, 0x394452, 1, -- Kureiji Ollie
+  "03005", 0xf3bf41, 0xf3bf41, 0xb3906f, 1, -- Anya Melfissa
+  "03006", 0x004dc2, 0x004dc2, 0x5ac6b6, 1, -- Pavolia Reine
+  "03007", 0x9290a1, 0x9290a1, 0x7e95ed, 1, -- Vestia Zeta
+  "03008", 0xfc4045, 0xfc4045, 0x54291a, 1, -- Kaela Kovalskia
+  "03009", 0x50cfe1, 0x50cfe1, 0x63668e, 1, -- Kobo Kanaeru
+  "04001", 0xe01c61, 0xe01c61, 0xff8eb8, 1, -- Mori Calliope
+  "04002", 0xff792e, 0xff792e, 0x38d2a8, 1, -- Takanashi Kiara
+  "04003", 0x5d4e83, 0x5d4e83, 0xff8d35, 1, -- Ninomae Ina'nis
+  "04007", 0xdf185d, 0xdf185d, 0x60ced0, 1, -- IRyS
+  "04010", 0x2221aa, 0x2221aa, 0xdcb33e, 1, -- Ouro Kronii
+  "04012", 0xee2222, 0xee2222, 0x48d5c8, 1, -- Hakos Baelz
+  "04013", 0xc288f7, 0xc288f7, 0x44445d, 1, -- Shiori Novella
+  "04014", 0x8674ff, 0x8674ff, 0xffa7ca, 1, -- Koseki Bijou
+  "04015", 0x3950ee, 0x3950ee, 0x3f3d53, 1, -- Nerissa Ravencroft
+  "04016", 0x67b2ff, 0x67b2ff, 0xf7a6ca, 1, -- Fuwawa Abyssgard*
+  "04017", 0xf7a6ca, 0xf7a6ca, 0x67b2ff, 1, -- Mococo Abyssgard*
+  "06002", 0xffd380, 0xffd380, 0xfc8275, 1, -- Otonose Kanade
+  "06003", 0xff77a9, 0xff77a9, 0x9d8dff, 1, -- Ichijou Ririka
+  "06004", 0x357b6c, 0x357b6c, 0xd7845a, 1, -- Juufuutei Raden
+  "06005", 0xa4aaff, 0xa4aaff, 0xdec2a7, 1, -- Todoroki Hajime
+  "80001", 0x67b2ff, 0xf7a6ca, 0x67b2ff, 1, -- FUWAMOCO
+} -- *No Live Skin in-game, but technically supported
+
+-- Rotate (cx,cy,cz) by rx/ry/rz (degrees) and scale by zoom.
+-- Order: X, then Y, then Z. Orthographic (no perspective).
+
+local function pivotShift(x, y, z, rx, ry, rz, zoom)
+  local a, c, s
+  if rx ~= 0 then
+    a = math.rad(rx); c, s = math.cos(a), math.sin(a)
+    y, z = y * c - z * s, y * s + z * c
+  end
+  if ry ~= 0 then
+    a = math.rad(ry); c, s = math.cos(a), math.sin(a)
+    x, z = x * c + z * s, -x * s + z * c
+  end
+  if rz ~= 0 then
+    a = math.rad(rz); c, s = math.cos(a), math.sin(a)
+    x, y = x * c - y * s, x * s + y * c
+  end
+  return x * zoom, y * zoom, z * zoom
+end
+
+function Draw_C(ox, oy, oz, zoom, alpha, rx, ry, rz, cx, cy, cz, aspect)
+  ox, oy, oz = ox or 0, oy or 0, oz or 0
+  zoom  = zoom  or 1
+  alpha = alpha or 1
+  rx, ry, rz = rx or 0, ry or 0, rz or 0
+
+  local old_cx, old_cy, old_cz = obj.cx, obj.cy, obj.cz
+  local old_aspect = obj.aspect
+  cx     = cx     or old_cx     or 0
+  cy     = cy     or old_cy     or 0
+  cz     = cz     or old_cz     or 0
+  aspect = aspect or old_aspect or 0
+
+  -- aspect -> per-axis scale. ASSUMPTION: positive narrows width, negative shortens height.
+  local ax = (aspect > 0) and (1 - aspect) or 1
+  local ay = (aspect < 0) and (1 + aspect) or 1
+  if aspect ~= 0 then
+    obj.effect("リサイズ", "X", ax * 100, "Y", ay * 100)
+  end
+
+  -- cx/cy/cz are in pre-aspect image pixels, so they scale with the resize
+  local pcx, pcy, pcz = cx * ax, cy * ay, cz
+
+  -- M·C: where the pivot point ends up after rotation + zoom
+  local px, py, pz = pivotShift(pcx, pcy, pcz, rx, ry, rz, zoom)
+
+  obj.cx, obj.cy, obj.cz = 0, 0, 0
+  obj.aspect = 0
+
+  -- image point C lands on (ox, oy, oz)
+  obj.draw(ox - px, oy - py, oz - pz, zoom, alpha, rx, ry, rz)
+
+  obj.cx, obj.cy, obj.cz = old_cx, old_cy, old_cz
+  obj.aspect = old_aspect
+end
+
+function Draw_C_Old(ox, oy, oz, zoom, alpha, rx, ry, rz, cx, cy, cz, aspect)
+  -- defaults match obj.draw()
+  ox, oy, oz = ox or 0, oy or 0, oz or 0
+  zoom  = zoom  or 1
+  alpha = alpha or 1
+  rx, ry, rz = rx or 0, ry or 0, rz or 0
+
+  -- save current state
+  local old_cx, old_cy, old_cz = obj.cx, obj.cy, obj.cz
+  local old_aspect = obj.aspect
+
+  -- apply overrides (nil keeps the current value)
+  obj.cx = cx or old_cx
+  obj.cy = cy or old_cy
+  obj.cz = cz or old_cz
+  obj.aspect = aspect or old_aspect
+
+  obj.draw(ox, oy, oz, zoom, alpha, rx, ry, rz)
+
+  -- restore so later draws aren't affected
+  obj.cx, obj.cy, obj.cz = old_cx, old_cy, old_cz
+  obj.aspect = old_aspect
+end
+-- might deprecate this...
+
+if cache ~= 1 or not YAGOO_DATA or YAGOO_DATA.file ~= file then
+  debug_print("[debug] Loading YAGOO data in " .. file)
+  YAGOO_DATA = {}
+  YAGOO_DATA.frames = {}
+  YAGOO_DATA.rank = {}
+  YAGOO_DATA.file = file
+  YAGOO_DATA.path = nil
+  YAGOO_DATA.version = nil
+  YAGOO_DATA.version_status = "none"
+  YAGOO_DATA.cache_number = cache
+  YAGOO_DATA.current = nil
+  YAGOO_DATA.previous = nil
+  YAGOO_DATA.next = nil
+  local fp, err = io.open(file, "r")
+  if fp then
+    YAGOO_DATA.loaded = "invalid"
+    for line in fp:lines() do
+      local header, data = string.match(line, "([a-z]+)|(.+)")
+      if header ~= nil then
+        YAGOO_DATA.loaded = "ok"
+        if header == "d" then -- Data
+          local nmatch = {string.match(data, "([%-0-9.]+):([%-0-9.]+):([%-0-9.]+):([%-0-9.]+):([%-0-9.]+):([%-0-9.]+)")}
+          YAGOO_DATA.frames[#YAGOO_DATA.frames + 1] = {
+            time = tonumber(nmatch[1]),
+            score = big(nmatch[2]):tonumber(),
+            offset = big(nmatch[3]):tonumber(),
+            width = tonumber(nmatch[4]),
+            widthS = tonumber(nmatch[5]),
+            combo = tonumber(nmatch[6])
+          }
+        elseif header == "r" then -- Rank
+          local nmatch = {string.match(data, "([%-0-9.]+):([%-0-9.]+):([%-0-9.]+)")}
+          YAGOO_DATA.rank[#YAGOO_DATA.rank + 1] = {
+            time = tonumber(nmatch[1]),
+            rankindex = tonumber(nmatch[2]),
+            plus = tonumber(nmatch[3])
+          }
+        elseif header == "p" then -- Path
+          YAGOO_DATA.path = data
+        elseif header == "v" then -- Version
+          YAGOO_DATA.version = data
+        elseif header == "b" then
+          YAGOO_DATA.b = data == "true"
+        end
+      end
+    end
+    debug_print("[debug] Successfully loaded YAGOO data")
+    debug_print("[debug] Time (ms): " .. obj.getinfo("script_time"))
+    debug_print("[debug] Version: " .. YAGOO_DATA.version)
+    debug_print("[debug] # of frames: " .. #YAGOO_DATA.frames)
+    debug_print("[debug] # of rank changes: " .. #YAGOO_DATA.rank)
+    fp:close()
+  else
+    YAGOO_DATA.loaded = "cannot_open"
+    debug_print("[debug] " .. err)
+    debug_print("[debug] Couldn't open YAGOO data file")
+  end
+end
+if YAGOO_DATA.version == "{version}" or YAGOO_DATA.version == "0.0.0" or "{version}" == "0.0.0" then
+  OFFSET = offset
+  YAGOO_DATA.current = {
+    time = 0,
+    score = 0,
+    offset = 0,
+    width = 0,
+    widthS = 0,
+    combo = 0,
+  }
+  YAGOO_DATA.previous = {
+    time = 0,
+    score = 0,
+    offset = 0,
+    width = 0,
+    widthS = 0,
+    combo = 0,
+  }
+  YAGOO_DATA.rank_current = {
+    time = 0,
+    rankindex = 1,
+    plus = 0,
+  }
+  for i = #YAGOO_DATA.frames, 1, -1 do
+    local score = YAGOO_DATA.frames[i]
+    if (score.time * obj.framerate) < (obj.frame - OFFSET) then
+      YAGOO_DATA.current = score
+      break
+    end
+  end
+  if YAGOO_DATA.current and YAGOO_DATA.current.time and YAGOO_DATA.current.time > 0 then
+    for i = #YAGOO_DATA.frames, 1, -1 do
+      local previous = YAGOO_DATA.frames[i]
+      if previous.time < YAGOO_DATA.current.time then
+        YAGOO_DATA.previous = {
+          time = previous.time,
+          score = previous.score,
+          offset = previous.offset,
+          width = previous.width,
+          widthS = previous.widthS,
+          combo = previous.combo,
+        }
+        break
+      end
+    end
+  end
+  if YAGOO_DATA.current and YAGOO_DATA.current.time then
+    for i = 1, #YAGOO_DATA.frames do
+      local next = YAGOO_DATA.frames[i]
+      if next.time > YAGOO_DATA.current.time then
+        YAGOO_DATA.next = next
+        break
+      end
+    end
+  else
+    YAGOO_DATA.next = YAGOO_DATA.frames[1]
+  end
+  for i = #YAGOO_DATA.rank, 1, -1 do
+    local rank = YAGOO_DATA.rank[i]
+    if (rank.time * obj.framerate) < (obj.frame - OFFSET) then
+      YAGOO_DATA.rank_current = rank
+      break
+    end
+  end
+  if YAGOO_DATA.rank_current and YAGOO_DATA.rank_current.time and YAGOO_DATA.rank_current.time > 0 then
+    for i = #YAGOO_DATA.rank, 1, -1 do
+      local previous = YAGOO_DATA.rank[i]
+      if previous.time < YAGOO_DATA.rank_current.time then
+        YAGOO_DATA.rank_previous = {
+          time = previous.time,
+          rankindex = previous.rankindex,
+          plus = previous.plus,
+        }
+        break
+      end
+    end
+  else
+    YAGOO_DATA.rank_previous = {
+      time = 0,
+      rankindex = 1,
+      plus = 0,
+    }
+  end
+  YAGOO_DATA.version_status = "ok"
+else
+  obj.setfont(Font[2], 50, 0)
+  if YAGOO_DATA.loaded == "cannot_open" then
+    if file == nil or file == "" then
+      obj.load("text",
+        "<s70><#ff0000>(! ERROR !)<#><s>\n"..
+        "YAGOOファイルが指定されていません\n"..
+        "YAGOO file is not specified",
+        0, 0, 4
+      )
+    else
+      obj.load("text",
+        "<s70><#ff0000>(! ERROR !)<#><s>\n"..
+        "YAGOOファイルが開けません\n"..
+        "Cannot open YAGOO file\n"..
+        "File: "..file,
+        0, 0, 4
+      )
+    end
+  elseif YAGOO_DATA.loaded == "invalid" then
+    obj.load("text",
+      "<s70><#ff0000>(! ERROR !)<#><s>\n"..
+      "YAGOOファイルが不正です\n"..
+      "Invalid YAGOO file\n"..
+      "File: "..file,
+      0, 0, 4
+    )
+  elseif YAGOO_DATA.version == nil then
+    obj.load("text",
+      "<s70><#ff0000>(! ERROR !)<#><s>\n"..
+      "YAGOOファイルのバージョンが不明です\n"..
+      "Unknown YAGOO file version\n"..
+      "File: "..file,
+      0, 0, 4
+    )
+  else
+    obj.load("text",
+      "<s70><#ff0000>(! ERROR !)<#><s>\n"..
+      "YAGOOファイルのバージョンが古いです\n"..
+      "Outdated YAGOO file version\n"..
+      "File: "..file.."\n"..
+      "Version: "..YAGOO_DATA.version.."\n"..
+      "Expected: {version}",
+      0, 0, 4
+    )
+  end
+  obj.draw(0, 0, 0, (obj.screen_h / 1080) * ((obj.screen_w / obj.screen_h) / (16/9)), 1)
+  YAGOO_DATA.version_status = "ng"
+end
+
+if YAGOO_DATA.b and YAGOO_DATA.version_status == "ok" then
+  obj.load("text",
+    "<s70><#ff0000>(! ERROR !)<#><s>\n"..
+    "サーバーまたは譜面作成が禁止リストに登録されているため、holodOverlayが生成されません。\n"..
+    "holodOverlay isn't generated due to the server/charter being in the blacklist.",
+    0, 0, 4
+  )
+  obj.draw(0, 0, 0, (obj.screen_h / 1080) * ((obj.screen_w / obj.screen_h) / (16/9)), 1)
+end
+
+if not obj.getinfo("saving") or ignoreWarn == 0 then
+  obj.setfont(Font[2], 40, 0, 0xffff00, 0x000000, false, false, 0, -30)
+  if obj.framerate ~= 60 then
+    obj.load("text",
+      "(! WARNING !)\n"..
+      "Your frame rate is not 60FPS ("..obj.framerate.."), so element durations may unintentionally be adjusted.\n"..
+      "フレームレートが60FPS ("..obj.framerate.."）ではないため、要素の再生時間が意図せず調整される場合があります。",
+      0, 0, 4
+    )
+  elseif obj.screen_w ~= 1920 or obj.screen_h ~= 1080 then
+    obj.load("text",
+      "(! WARNING !)\n"..
+      "Your screen resolution is not 1920x1080 ("..obj.screen_w.."x"..obj.screen_h.."), so element positions may be off.\n"..
+      "画面解像度が1920x1080 ("..obj.screen_w.."x"..obj.screen_h.."）ではないため、要素の位置がずれる可能性があります。",
+      0, 0, 4
+    )
+  end
+  obj.draw(0, obj.screen_h * 0.45, 0, 0.7 * (obj.screen_h / 1080) * ((obj.screen_w / obj.screen_h) / (16/9)), 0.7)
+end
+
+if YAGOO_DATA.integrity == nil then
+  YAGOO_DATA.integrity = SHA256(YAGOO_DATA.path.."/holodOverlay-logo-mark.png") == "ed050e14a7b0b412cd4862825bbe82ad5b7ab4852d366326034cd12be15fcb8c"
+end
+if YAGOO_DATA.version_status == "ok" and not YAGOO_DATA.integrity then
+  obj.setfont(Font[2], 50, 0)
+  obj.load("text",
+    "<s70><#ff0000>(! ERROR !)<#><s>\n"..
+    "透かしが見つかりません／改ざんされています。holodOverlayを再度開いてください。\n"..
+    "Watermark not found/was tempered. Please open holodOverlay again.",
+    0, 0, 4
+  )
+  obj.draw(0, 0, 0, (obj.screen_h / 1080) * ((obj.screen_w / obj.screen_h) / (16/9)), 1)
+  YAGOO_DATA.version_status = "ng"
+end
+WATERMARK = watermark
+
+--------------------------------------------------------------------------------------------------------------------------------
+@レーン
+--label:holodOverlay
+--information:holodOverlay by TootieJin (v{version})
+--check@dynamicLane:動的レーン (実験的機能)
+--text@text:注,(! 注/NOTE !)\nこの機能は現在実験段階であり、ゲーム内の表示とは異なる場合があります。\n本来のデフォルトの要素を表示するには、上記の機能のチェックを外してください。\nThis feature is currently experimental and may not reflect with the visuals in-game.\nFor the *true* default elements, uncheck the feature above.\n-TootieJin
+--separator:レーン
+--check@rootSync:スキンタイプを設定に同期,1
+--track@skinTypeLane:スキンタイプ,1,56,1,1
+--track@judgelineVPos:判定ラインの位置,-1000,1000,0,0.01
+--track@laneL:左レーン,-48,48,-6,0.01
+--track@laneR:右レーン,-48,48,6,0.01
+--track@laneTransparency:背景の透明度,0,100,20,0.01
+--track@lanePerDivision:部門ごとのレーン数,0,96,2,1,オフ
+--separator:ライブスキン (カスタム)
+--check@customSkin:カスタムスキン,0
+--color@scoreCol:色1,0x28c3ff
+--color@lifeCol:色2,0x28c3ff
+--file@icon:アイコン
+--hide@text:dynamicLane==0
+--hide@rootSync:dynamicLane==0
+--hide@rootSync:customSkin==1
+--hide@skinTypeLane:dynamicLane==0
+--hide@skinTypeLane:rootSync==1
+--hide@skinTypeLane:customSkin==1
+--hide@judgelineVPos:dynamicLane==0
+--hide@laneL:dynamicLane==0
+--hide@laneR:dynamicLane==0
+--hide@laneTransparency:dynamicLane==0
+--hide@lanePerDivision:dynamicLane==0
+--hide@customSkin:dynamicLane==0
+--hide@scoreCol:customSkin==0
+--hide@lifeCol:customSkin==0
+--hide@icon:customSkin==0
+
+lanePerDivision = ToInt(lanePerDivision)
+skinTypeLane = ToInt(skinTypeLane)
+if rootSync == 1 then skinTypeLane = SKINTYPE end
+if customSkin == 1 then skinTypeLane = 1 end
+if customSkin == 1 then scoreCol = scoreCol else scoreCol = Code[((skinTypeLane - 1) * 5) + 2] end
+if customSkin == 1 then lifeCol = lifeCol else lifeCol = Code[((skinTypeLane - 1) * 5) + 3] end
+
+if YAGOO_DATA and YAGOO_DATA.version_status == "ok" then
+  if dynamicLane == 1 then
+    local internalID = Code[((skinTypeLane - 1) * 5) + 1]
+
+    local scoreColH, scoreColS, scoreColV = HSV(scoreCol)
+    local lifeColH, lifeColS, lifeColV = HSV(lifeCol)
+    local laneBgColor = HSV(scoreColH, scoreColS, 0.25 * scoreColV)
+    local sideLaneColor = HSV(scoreColH, scoreColS, scoreColV)
+    local outsideOutlineColor = HSV(scoreColH, 0.65 * scoreColS, 0.9 * scoreColV)
+    local innerJudgeColor = HSV(lifeColH, 0.5 * lifeColS, 0.9 * lifeColV)
+    local insideOutlineColor = HSV(lifeColH, 0.65 * lifeColS, 0.9 * lifeColV)
+    local outerJudgeColor = HSV(lifeColH, 0.35 * lifeColS, lifeColV)
+    local circleOuterColor = HSV(lifeColH, lifeColS, 0.85 * lifeColV)
+    local circleMiddleColor = HSV(lifeColH, 0.89 * lifeColS, 0.87 * lifeColV)
+    local circleInnerColor = HSV(lifeColH, lifeColS, 0.83 * lifeColV)
+
+    local leftClip = 2004 + (laneL * 77) / 2
+    local rightClip = 2004 - (laneR * 77) / 2
+    local cx_shift = 19.25 * ((-laneL - 6) - (laneR - 6))
+
+    -- Lane BG
+    obj.load("image", YAGOO_DATA.path.."/lane/ef_ui_400_laneside.png")
+    obj.effect("領域拡張", "左", 2000, "右", 2000, "塗りつぶし", 1)
+    obj.effect("単色化", "強さ", 100, "色", laneBgColor, "輝度を保持する", 0)
+    obj.effect("クリッピング", "左", leftClip, "右", rightClip, "中心の位置を変更", 0) 
+    -- 中心の位置を変更 (AdjustCenter) works, but still anchors the center to draw despite not turning it on...
+    -- sigh... I gotta need to adjust CenterX as well...
+    Draw_C_Old(0, 0, 0, 30, 1 - laneTransparency/100, -60, 0, 0, cx_shift, 0, 0, 0.9279)
+
+    -- Side Lane
+    local shiftL = -(110.6/6) * laneL
+    local shiftR = -(110.6/6) * laneR
+    obj.load("image", YAGOO_DATA.path.."/lane/ef_ui_400_laneside.png")
+    obj.effect("単色化", "強さ", 100, "色", sideLaneColor, "輝度を保持する", 0)
+    Draw_C_Old(0, 0, 0, 30, 0.5, -60, 0, 0, shiftL + 3.85, 0, 0, 0.85)
+    Draw_C_Old(0, 0, 0, 30, 0.5, -60, 0, 0, shiftR - 3.85, 0, 0, 0.85)
+
+    -- Lane Outline (outside judge)
+    local laneSlotL = math.ceil(laneL)
+    local laneSlotR = math.floor(laneR)
+
+    if lanePerDivision ~= 0 then
+      for i = laneSlotL, laneSlotR, 1 do
+        local leftClip = 1999 + i * 37
+        local rightClip = 2000 - i * 37
+        local cx_shift = -37.55 * i
+        local isCenter = (i == 0) and 1 or 0
+
+        if i % lanePerDivision == 0 and (i ~= laneL and i ~= laneR) then
+          obj.load("figure", "四角形", outsideOutlineColor, 4000, 4000, false, 0)
+          obj.effect("座標", "Z", -560)
+          obj.effect("領域拡張", "上", 4000, "塗りつぶし", 1)
+          obj.effect("クリッピング", "左", leftClip, "右", rightClip, "中心の位置を変更", 0)
+          Draw_C_Old(0, 0, 0, 1, 1, -60, 0, 0, cx_shift + 0.75 * isCenter, 0, 0, 0)
+          -- cx shifted for center lines because the figure between pixel grid being so small that 
+          -- it doesn't even draw anything, not even making it draw with small opacity like wtf
+        end
+      end
+    end
+
+    -- Judgement Line (inner)
+    local leftClip = 1984 + (laneL * 75) / 2
+    local rightClip = 1984 - (laneR * 75) / 2
+    local cx_shift = 18.75 * ((-laneL - 6) - (laneR - 6))
+
+    obj.load("figure", "四角形", innerJudgeColor, 4000, 4000, false, 0)
+    obj.effect("座標", "Z", -560)
+    obj.effect("クリッピング", "上", 2179, "下", 1796, "左", leftClip, "右", rightClip, "中心の位置を変更", 0)
+    Draw_C_Old(0, 0, 0, 1, 0.5, -60, 0, 0, cx_shift, -192.25 + judgelineVPos, 0, 0) -- cy = -192.25 because of exact same reason for AdjustCenter...
+
+    -- Lane Outline (inside judge)
+    for i = laneSlotL, laneSlotR, 1 do
+      if i ~= laneL and i ~= laneR then
+        local leftClip = 1999 + i * 37
+        local rightClip = 2000 - i * 37
+        local cx_shift = -37.55 * i
+        local isCenter = (i == 0) and 1 or 0
+
+        obj.load("figure", "四角形", insideOutlineColor, 4000, 4000, false, 0)
+        obj.effect("座標", "Z", -560)
+        obj.effect("クリッピング", "上", 2179, "下", 1796, "左", leftClip, "右", rightClip, "中心の位置を変更", 0)
+        Draw_C_Old(0, 0, 0, 1, 1, -60, 0, 0, cx_shift + 0.75 * isCenter, -192.25 + judgelineVPos, 0, 0)
+      end
+    end
+
+    -- Judgement Line (outer)
+    for i = -1, 1, 2 do
+      local cy_shift = 11.5 * i
+      obj.load("figure", "四角形", outerJudgeColor, 4000, 4000, false, 0)
+      obj.effect("座標", "Z", -560)
+      obj.effect("クリッピング", "上", 2179, "下", 1818, "左", leftClip, "右", rightClip, "中心の位置を変更", 0)
+      Draw_C_Old(0, 0, 0, 1, 1, -60, 0, 0, cx_shift, -192.25 + cy_shift + judgelineVPos, 0, 0)
+    end
+
+    -- Circles & Icon
+    local shiftL1 = -(3522/6) * laneL
+    local shiftR1 = -(3522/6) * laneR
+    local shiftL2 = -(3875/6) * laneL
+    local shiftR2 = -(3875/6) * laneR
+    local judgelineVPos1 = judgelineVPos * 18.16
+    local judgelineVPos2 = judgelineVPos * 18.16 * (0.22/0.2)
+
+    local circleLeftX = shiftL1 + 250
+    local circleRightX = shiftR1 - 250
+    obj.load("figure", "円", circleOuterColor, 470, 4000, false, 0)
+    Draw_C_Old(0, 330, 0, 0.22, 0.375, -48, 0, 0, circleLeftX, judgelineVPos1, 0)
+    Draw_C_Old(0, 330, 0, 0.22, 0.375, -48, 0, 0, circleRightX, judgelineVPos1, 0)
+
+    obj.load("figure", "円", circleMiddleColor, 384, 4000, false, 0)
+    Draw_C_Old(0, 330, 0, 0.22, 1, -48, 0, 0, circleLeftX, judgelineVPos1, 0)
+    Draw_C_Old(0, 330, 0, 0.22, 1, -48, 0, 0, circleRightX, judgelineVPos1, 0)
+
+    obj.load("figure", "円", circleInnerColor, 324, 4000, false, 0)
+    Draw_C_Old(0, 330, 0, 0.22, 1, -48, 0, 0, circleLeftX, judgelineVPos1, 0)
+    Draw_C_Old(0, 330, 0, 0.22, 1, -48, 0, 0, circleRightX, judgelineVPos1, 0)
+
+    local iconFile = (icon ~= "" and icon) or YAGOO_DATA.path.."/lane/icon/img_chr_motif_icon_default_main_"..internalID..".png"
+    obj.load("image", iconFile)
+    Draw_C_Old(0, 330, 0, 0.2, 1, -48, 0, 0, shiftL2 + 275, judgelineVPos2, 0)
+    Draw_C_Old(0, 330, 0, 0.2, 1, -48, 0, 0, shiftR2 - 275, judgelineVPos2, 0)
+  else
+    obj.setoption("drawtarget", "tempbuffer", 2360, 1640)
+    obj.load("image", YAGOO_DATA.path.."/lane/lane_template.png")
+    obj.effect("unmult")
+    obj.effect("マスク", "サイズ", 3000, "マスクの種類", "三角形")
+    obj.draw(0, 0, 0, 0.815, 1)
+    obj.copybuffer("object", "tempbuffer")
+  end
+end
+
+if WATERMARK == 1 and YAGOO_DATA.version_status == "ok" then
+  obj.load("image", YAGOO_DATA.path.."/holodOverlay-logo-mark.png")
+  obj.draw(0, obj.screen_h * 0.45, 0, 0.4 * (obj.screen_h / 1080) * ((obj.screen_w / obj.screen_h) / (16/9)), 0.2)
+end
+
+--[[
+Putting it in a tempbuffer requires reworking the entire thing...
+I wonder if I should work on that for dynamic lane...
+--]]
+
+--------------------------------------------------------------------------------------------------------------------------------
+@スコア
+--label:holodOverlay
+--information:holodOverlay by TootieJin (v{version})
+--track@xBound:X軸境界,0,9999,1920,1
+--check@rootSync:スキンタイプを設定に同期,1
+--track@skinTypeScore:スキンタイプ,1,56,1,1
+--value@speed:アニメーション速度,1.00
+--track@minDigit:最小桁数,1,99,8,1
+--check@rankS9:ランクS+9を超える,0
+--check@rankPlus:他のランクに「+」を追加する,0
+--separator:ライブスキン (カスタム)
+--check@customSkin:カスタムスキン,0
+--color@scoreCol:スコアの色,0x28c3ff
+--font@font1:フォント1,{font-1}
+--font@font2:フォント2,{font-2}
+--check@decoration:スキンの装飾,0
+--file@decoKeychain:キーホルダー
+--file@decoMain:アクリル作品
+--file@decoSub:ステッカー
+--hide@skinTypeScore:rootSync==1
+--hide@skinTypeScore:customSkin==1
+--hide@rootSync:customSkin==1
+--hide@scoreCol:customSkin==0
+--hide@font1:customSkin==0
+--hide@font2:customSkin==0
+--hide@decoration:customSkin==0
+--hide@decoKeychain:decoration==0
+--hide@decoMain:decoration==0
+--hide@decoSub:decoration==0
+--hide@decoKeychain:customSkin==0
+--hide@decoMain:customSkin==0
+--hide@decoSub:customSkin==0
+
+local rankStr = {"D", "C", "B", "A", "S"}
+local plusCol = {0x6ca9f8, 0xa1d946, 0xf0bf41, 0xe97fc2, 0x816bfa}
+
+speed = speed or 1
+minDigit = ToInt(minDigit)
+skinTypeScore = ToInt(skinTypeScore)
+if rootSync == 1 then skinTypeScore = SKINTYPE end
+if customSkin == 1 then skinTypeScore = 1 end
+if customSkin == 1 then scoreCol = scoreCol else scoreCol = Code[((skinTypeScore - 1) * 5) + 2] end
+if customSkin == 1 then decoration = decoration else decoration = Code[((skinTypeScore - 1) * 5) + 5] end
+if customSkin == 1 then font1, font2 = font1, font2 else font1, font2 = Font[1], Font[2] end
+
+if YAGOO_DATA and YAGOO_DATA.version_status == "ok" then
+  local internalID = Code[((skinTypeScore - 1) * 5) + 1]
+
+  local progress_frame = ((obj.frame - OFFSET) - (YAGOO_DATA.current.time * obj.framerate)) * speed
+  local progress_rank_frame = ((obj.frame - OFFSET) - (YAGOO_DATA.rank_current.time * obj.framerate)) * speed
+  local progress_offset = math.min(1, (progress_frame / 12))
+  local progress_rank_offset = math.min(1, (progress_rank_frame / 12))
+
+  -- values
+  local width = YAGOO_DATA.current.width - (YAGOO_DATA.current.width - YAGOO_DATA.previous.width) * (1 - progress_offset)
+  local widthS = YAGOO_DATA.current.widthS - (YAGOO_DATA.current.widthS - YAGOO_DATA.previous.widthS) * (1 - progress_offset)
+  local plus = YAGOO_DATA.rank_current.plus
+  local alphaS = 1
+
+  if YAGOO_DATA.current.width < YAGOO_DATA.previous.width then width = YAGOO_DATA.current.width end
+  if YAGOO_DATA.current.widthS < YAGOO_DATA.previous.widthS then widthS = YAGOO_DATA.current.widthS end
+
+  if YAGOO_DATA.rank_current.rankindex == 5 then alphaS = 0.7 end
+  if rankS9 == 0 and YAGOO_DATA.rank_current.rankindex == 5 and plus >= 9 then
+    widthS = 1
+    plus = 9
+  end
+
+  local rank = rankStr[YAGOO_DATA.rank_current.rankindex]
+  local rankPrev = rankStr[math.max(1, YAGOO_DATA.rank_current.rankindex - 1)]
+  local rankBefore = rankStr[math.max(1, YAGOO_DATA.rank_previous.rankindex)]
+  if (rankPlus == 1 and plus > 0) or (rankPlus == 0 and YAGOO_DATA.rank_current.rankindex == 5 and plus > 0) then rankPrev = rank end
+
+  local rankSize = -79/600 * math.abs((progress_rank_offset * 12) - 9) + 1.185
+  local rankSizePrev = 0.79 * (1 - progress_rank_offset)
+  local rankRZ = -90 * (1 - progress_rank_offset)
+  local rankRZPrev = -90 * progress_rank_offset
+
+  local score_num = YAGOO_DATA.current.score
+  local score_anim = (YAGOO_DATA.current.score - YAGOO_DATA.previous.score) * (1 - progress_offset)
+  local digits = string.format("%0"..#tostring(score_num)..".0f", math.abs(score_num - score_anim))
+  local score_str
+  if YAGOO_DATA.current.score < 0 then
+    score_str = "-<a0.4>" .. string.rep("0", math.max(1, minDigit - 1) - #digits) .. "<a>" .. digits
+  else
+    score_str = "<a0.4>" .. string.rep("0", minDigit - #digits) .. "<a>" .. digits
+  end
+
+  local function buildText(cache, str, o)
+    Monospace.Build(str, o)
+    obj.copybuffer(cache, "object")
+  end
+
+  -- "+N"
+  local plusStr
+  if plus > 1 then
+    plusStr = "<s-19><p+0,+10>+<p><s>" .. plus
+  elseif plus == 1 and rankPlus == 1 then
+    plusStr = "<s+15><p-11.25,-6>+<p><s>"
+  elseif plus == 1 and rankPlus == 0 and YAGOO_DATA.rank_current.rankindex == 5 then
+    plusStr = "<s+15><p-11.25,-6>+<p><s>"
+  end
+  if plusStr then
+    buildText("cache:score_plus", plusStr, {
+      pitch = 47, lpitch = 60, size = 80, wratio = 2, speed = 0,
+      align = 5, deco = 3, cellalign = 0,
+      fixed = 0, bold = 0, italic = 0, usetag = 1,
+      font = font1, col = plusCol[YAGOO_DATA.rank_current.rankindex], col2 = 0xffffff,
+    })
+  end
+
+  -- main score
+  buildText("cache:score_main", score_str, {
+    pitch = 72, lpitch = 60, size = 100, wratio = 2, speed = 0,
+    align = 3, deco = 3, cellalign = 0,
+    fixed = 0, bold = 0, italic = 0, usetag = 1,
+    font = font1, col = 0xffffff, col2 = 0x3e3c7c,
+  })
+
+  -- timing offset popup
+  local showOffset = YAGOO_DATA.current.combo > 0 and progress_frame <= 33
+  local offX, offZoom, offAlpha
+  if showOffset then
+    local progress = math.min(1, (progress_frame / 2))
+    local progressAlpha = math.max(0, ((progress_frame / 3) - 10))
+    local shift = score_str:gsub("<a0.4>", ""):gsub("<a>", ""):len() * 80
+    local sign = (YAGOO_DATA.current.offset > 0) and "+" or ""
+    offX, offZoom, offAlpha = -225.5 + shift, 0.89 * progress, 1 - progressAlpha
+
+    buildText("cache:score_off", sign .. YAGOO_DATA.current.offset, {
+      pitch = 58, lpitch = 100, size = 80, wratio = 2, speed = 0,
+      align = 3, deco = 0, cellalign = 0,
+      fixed = 0, bold = 0, italic = 0, usetag = 1,
+      font = font2, col = 0xffffff, col2 = 0x000000,
+    })
+  end
+
+  -- Drawing
+  obj.setoption("drawtarget", "tempbuffer", xBound, 648)
+
+  -- Construction
+  obj.load("image", YAGOO_DATA.path.."/score/score_base.png")
+  obj.effect("単色化", "強さ", 100, "色", scoreCol, "輝度を保持する", 0)
+  obj.draw()
+  obj.load("image", YAGOO_DATA.path.."/score/score_border.png")
+  obj.draw()
+
+  if ((decoKeychain ~= "" or decoMain ~= "") and customSkin == 1) or (decoration == 1 and customSkin == 0) then
+    obj.load("image", YAGOO_DATA.path.."/score/score_keyhole_base.png")
+    obj.effect("単色化", "強さ", 100, "色", scoreCol, "輝度を保持する", 0)
+    obj.draw(-732, 0, 0, 1, 1, 0, 0, 90)
+    obj.load("image", YAGOO_DATA.path.."/score/score_keyhole_border.png")
+    obj.draw(-738, 0, 0, 1, 1, 0, 0, 90)
+  end
+
+  obj.load("image", YAGOO_DATA.path.."/score/score_bar.png")
+  obj.draw(96.5, -11, 0, 0.994, 1)
+
+  obj.load("image", YAGOO_DATA.path.."/score/score_fill_default.png")
+  obj.effect("マスク", "X", width * 1070, "サイズ", 1070, "マスクの種類", "四角形", "マスクの反転", 1)
+  obj.draw(96.5, -11.25, 0, 0.994, alphaS)
+
+  if YAGOO_DATA.rank_current.rankindex == 5 then
+    obj.load("image", YAGOO_DATA.path.."/score/score_bar_s.png")
+    obj.draw(-260.95, 10, 0, 1.05864, 1)
+
+    obj.load("image", YAGOO_DATA.path.."/score/score_fill_s.png")
+    obj.effect("マスク", "X", widthS * 344, "サイズ", 344, "マスクの種類", "四角形", "マスクの反転", 1)
+    obj.draw(-261, 10, 0, 1.01, 1)
+  end
+
+  obj.load("image", YAGOO_DATA.path.."/score/score_seperator.png")
+  obj.draw(-20.5, -29.5, 0, 0.9, 1)
+  obj.draw(196.5, -29.5, 0, 0.9, 1)
+  obj.draw(414.0, -29.5, 0, 0.9, 1)
+  obj.draw(628.5, -29.5, 0, 0.9, 1)
+
+  if YAGOO_DATA.current.combo > 0 and progress_rank_offset <= 12 and (rankPlus == 1 or rankS9 == 1) and plus == YAGOO_DATA.rank_current.plus then
+    obj.load("image", YAGOO_DATA.path.."/score/rank/rank" .. rankPrev .. ".png")
+    obj.draw(-581, -5, 0, rankSizePrev, 1, 0, 0, rankRZPrev)
+    obj.load("image", YAGOO_DATA.path.."/score/rank/rank" .. rank .. ".png")
+    obj.draw(-581, -5, 0, rankSize, 1, 0, 0, rankRZ)
+  elseif YAGOO_DATA.current.combo > 0 and progress_rank_offset <= 12 and rankPlus == 0 and YAGOO_DATA.rank_current.plus <= 9 and (rankBefore ~= rank or rankBefore == "S") then
+    obj.load("image", YAGOO_DATA.path.."/score/rank/rank" .. rankBefore .. ".png")
+    obj.draw(-581, -5, 0, rankSizePrev, 1, 0, 0, rankRZPrev)
+    obj.load("image", YAGOO_DATA.path.."/score/rank/rank" .. rank .. ".png")
+    obj.draw(-581, -5, 0, rankSize, 1, 0, 0, rankRZ)
+  else
+    obj.load("image", YAGOO_DATA.path.."/score/rank/rank" .. rank .. ".png")
+    obj.draw(-581, -5, 0, 0.79, 1)
+  end
+
+  -- Text print (composited from cache, same order as before)
+  if plusStr then
+    obj.copybuffer("object", "cache:score_plus")
+    obj.draw(-484, 66.25, 0, 1, 1)
+  end
+  obj.copybuffer("object", "cache:score_main"); obj.draw(-419, 105, 0, 1, 1)
+  if showOffset then
+    obj.copybuffer("object", "cache:score_off")
+    Draw_C(offX, 100, 0, offZoom, offAlpha, 0, 0, 0, 225, -30, 0)
+  end
+
+  -- Decoration (unchanged)
+  local interval = 2 * math.sin((3/4) * obj.time * math.pi * speed)
+
+  if (decoMain ~= "" and customSkin == 1) or (decoration == 1 and customSkin == 0) then
+    local motif_main = YAGOO_DATA.path.."/score/decor/main/img_chr_motif_main_"..internalID..".png"
+    if decoMain ~= "" then motif_main = decoMain end
+
+    obj.load("image", motif_main)
+    Draw_C(-745.25, -9.4, 0, 0.4, 1, 0, 0, interval, 1.88, -482.5, 0)
+  end
+
+  if (decoKeychain ~= "" and customSkin == 1) or (decoration == 1 and customSkin == 0) then
+    local keychain = YAGOO_DATA.path.."/score/decor/keychain/img_chr_key_chain_"..internalID..".png"
+    if decoKeychain ~= "" then keychain = decoKeychain end
+
+    obj.load("image", keychain)
+    obj.effect("マスク", "X", -1, "Y", -70, "回転", -100, "サイズ", 30, "マスクの種類", "円", "マスクの反転", 1)
+    obj.effect("マスク", "X", 11.5, "Y", -75, "回転", -10, "サイズ", 25, "マスクの種類", "ハート", "マスクの反転", 1)
+    obj.effect("マスク", "X", -2.5, "Y", -60, "回転", -10, "サイズ", 32, "マスクの種類", "円", "マスクの反転", 1)
+    obj.effect("マスク", "X", 1.5, "Y", -54, "回転", 0, "サイズ", 25, "マスクの種類", "四角形", "マスクの反転", 1)
+    obj.effect("マスク", "X", 15, "Y", -78, "回転", 280, "サイズ", 25, "マスクの種類", "ハート", "マスクの反転", 1)
+    Draw_C(-745.25, -9.5, 0, 0.69, 1, 0, 0, interval, 0, -71.73, 0)
+  end
+
+  if (decoSub ~= "" and customSkin == 1) or (decoration == 1 and customSkin == 0) then
+    local motif_sub = YAGOO_DATA.path.."/score/decor/sub/img_chr_motif_sub_"..internalID..".png"
+    if decoSub ~= "" then motif_sub = decoSub end
+
+    obj.load("image", motif_sub)
+    obj.draw(713.5, -91.75, 0, 0.4, 1, 0, 0, 5)
+  end
+  obj.copybuffer("object", "tempbuffer")
+end
+
+--------------------------------------------------------------------------------------------------------------------------------
+@ライフ
+--label:holodOverlay
+--information:holodOverlay by TootieJin (v{version})
+--check@rootSync:スキンタイプを設定に同期,1
+--track@skinTypeLife:スキンタイプ,1,56,1,1
+--value@speed:アニメーション速度,1.00
+--track@maxLife:最大ライフ値,1,99999,1000,1
+--text@lifeValue:時間(秒):ライフ値,--特定の時点でのLIFEを変更するには、\n--各行を「[時間(秒)]:[ライフ値]」という形式で入力してください。\n--Type each line in the form of "[time (s)]:[LIFE value]"\n--to change LIFE at specific time.\n--Ex: 0:1000\n
+--separator:ライブスキン (カスタム)
+--check@customSkin:カスタムスキン,0
+--color@lifeCol:ライフの色,0x28c3ff
+--font@font2:フォント,{font-2}
+--hide@skinTypeLife:rootSync==1
+--hide@skinTypeLife:customSkin==1
+--hide@rootSync:customSkin==1
+--hide@lifeCol:customSkin==0
+--hide@font2:customSkin==0
+
+speed = speed or 1
+skinTypeLife = ToInt(skinTypeLife)
+if rootSync == 1 then skinTypeLife = SKINTYPE end
+if customSkin == 1 then skinTypeLife = 1 end
+if customSkin == 1 then lifeCol = lifeCol else lifeCol = Code[((skinTypeLife - 1) * 5) + 3] end
+if customSkin == 1 then font2 = font2 else font2 = Font[2] end
+
+YAGOO_DATA.life = {}
+for line in (lifeValue.."\n"):gmatch("(.-)\r?\n") do
+  if not line:match("^%-%-") then
+    local time, value = string.match(line, "([%-0-9.]+):([%-0-9.]+)")
+    time, value = tonumber(time), tonumber(value)
+    if time and value then
+      YAGOO_DATA.life[#YAGOO_DATA.life + 1] = { time = time, value = math.max(0, value) }
+    end
+  end
+end
+
+YAGOO_DATA.life_current = {
+  time = 0,
+  value = maxLife,
+}
+
+for i = #YAGOO_DATA.life, 1, -1 do
+  local life = YAGOO_DATA.life[i]
+  if (life.time * obj.framerate) <= (obj.frame - OFFSET) then
+    YAGOO_DATA.life_current = life
+    break
+  end
+end
+if YAGOO_DATA.life_current and YAGOO_DATA.life_current.time and YAGOO_DATA.life_current.time > 0 then
+  for i = #YAGOO_DATA.life, 1, -1 do
+    local previous = YAGOO_DATA.life[i]
+    if previous.time < YAGOO_DATA.life_current.time then
+      YAGOO_DATA.life_previous = {
+        time = previous.time,
+        value = previous.value,
+      }
+      break
+    end
+  end
+else
+  YAGOO_DATA.life_previous = {
+    time = 0,
+    value = maxLife,
+  }
+end
+
+if YAGOO_DATA and YAGOO_DATA.version_status == "ok" then
+  local progress_frame = ((obj.frame - OFFSET) - (YAGOO_DATA.life_current.time * obj.framerate)) * speed
+  local progress_0 = math.max(0, math.min(1, ((progress_frame) / 7)))
+  local progress_1 = math.max(0, math.min(1, ((progress_frame - 7) / 7)))
+  local progress_2 = math.max(0, math.min(1, ((progress_frame - 14) / 7)))
+  local progress_alert = math.min(1, math.max(0, -(progress_frame/26) + (36/26)))
+
+  -- text buffer
+  local changed = YAGOO_DATA.life_current.value ~= YAGOO_DATA.life_previous.value
+  local val, ty, a4, a0
+  if progress_frame <= 7 and changed then
+    val, ty, a4, a0 = YAGOO_DATA.life_previous.value, -3 + 60 * progress_0, 0.5 - 0.5 * progress_0, 1 - progress_0
+  elseif progress_frame <= 14 and changed then
+    val, ty, a4, a0 = YAGOO_DATA.life_current.value, -3 + 60 * (1 - progress_1), 0.5 * progress_1, progress_1
+  else
+    val, ty, a4, a0 = YAGOO_DATA.life_current.value, -3, 0.5, 1
+  end
+
+  local o = {
+    pitch = 55.5, lpitch = 100, size = 80, wratio = 2, speed = 0,
+    align = 5, deco = 4, cellalign = 0,
+    fixed = 0, bold = 0, italic = 0, usetag = 1,
+    font = font2, col = 0xffffff, col2 = 0x000000,
+  }
+  Monospace.Build(val, o)
+  obj.copybuffer("cache:life_num_shadow", "object")
+  o.deco = 0
+  Monospace.Build(val, o)
+  obj.copybuffer("cache:life_num_main", "object")
+
+  -- draw
+  obj.setoption("drawtarget", "tempbuffer", 750, 328)
+
+  obj.load("image", YAGOO_DATA.path.."/life/life_base.png")
+  obj.effect("単色化", "強さ", 100, "色", lifeCol, "輝度を保持する", 0)
+  obj.draw()
+  obj.load("image", YAGOO_DATA.path.."/life/life_border.png")
+  obj.draw()
+
+  obj.copybuffer("object", "cache:life_num_shadow")
+  obj.draw(248, ty, 0, 0.66, a4)
+  obj.copybuffer("object", "cache:life_num_main")
+  obj.draw(248, ty, 0, 0.66, a0)
+
+  obj.load("image", YAGOO_DATA.path.."/life/life_bar.png")
+  obj.draw(0, 40, 0, 1, 1)
+
+  local constant = 496
+  local constantAlert = 0.3
+  local currentClip = math.max(0, 1 - (YAGOO_DATA.life_current.value / maxLife))
+  local previousClip = math.max(0, 1 - (YAGOO_DATA.life_previous.value / maxLife))
+  local deltaClip = currentClip - previousClip
+  local clipFill, clipBar = constant * currentClip, constant * currentClip
+  local fileNotifs
+  if YAGOO_DATA.life_current.value < YAGOO_DATA.life_previous.value then
+    fileNotifs = YAGOO_DATA.path.."/life/life_alert.png"
+    clipFill, clipBar = constant * (currentClip - (deltaClip * (1 - progress_2))), constant * (currentClip - (deltaClip * (1 - progress_1)))
+  elseif YAGOO_DATA.life_current.value > YAGOO_DATA.life_previous.value then
+    fileNotifs = YAGOO_DATA.path.."/life/life_boost.png"
+    clipFill, clipBar = constant * (currentClip - (deltaClip * (1 - progress_1))), constant * (currentClip - (deltaClip * (1 - progress_2)))
+  end
+
+  local fileFill, fileBar = YAGOO_DATA.path.."/life/life_fill.png", YAGOO_DATA.path.."/life/life_fill_normal.png"
+  if clipBar/constant >= (1 - constantAlert) then fileBar = YAGOO_DATA.path.."/life/life_fill_alert.png" end
+
+  local function drawLifeBarChange()
+    obj.load("image", fileFill)
+    obj.effect("単色化", "強さ", 100, "色", 0x888ab5, "輝度を保持する", 0)
+    obj.effect("マスク", "X", -clipFill, "サイズ", constant, "マスクの種類", "四角形")
+    obj.draw(0, 40, 0, 1, 1)
+
+    obj.load("image", fileBar)
+    obj.effect("マスク", "X", -clipBar, "サイズ", constant, "マスクの種類", "四角形")
+    obj.draw(0, 40, 0, 1, 1)
+  end
+
+  if YAGOO_DATA.life_current.value ~= YAGOO_DATA.life_previous.value then
+    obj.load("image", fileNotifs)
+    obj.draw(0, 0, 0, 1, progress_alert)
+    drawLifeBarChange()
+  else
+    obj.load("image", YAGOO_DATA.path.."/life/life_fill_normal.png")
+    obj.effect("マスク", "X", -currentClip, "サイズ", constant, "マスクの種類", "四角形")
+    obj.draw(0, 40, 0, 1, 1)
+  end
+  obj.copybuffer("object", "tempbuffer")
+end
+
+--------------------------------------------------------------------------------------------------------------------------------
+@一時停止
+--label:holodOverlay
+--information:holodOverlay by TootieJin (v{version})
+--check@rootSync:スキンタイプを設定に同期,1
+--track@skinTypePause:スキンタイプ,1,56,1,1
+--check@pauseGray:一時停止無効,0
+--separator:ライブスキン (カスタム)
+--check@customSkin:カスタムスキン,0
+--color@pauseCol:一時停止の色,0x5fdcf0
+--hide@skinTypePause:rootSync==1
+--hide@skinTypePause:customSkin==1
+--hide@rootSync:customSkin==1
+--hide@pauseCol:customSkin==0
+
+skinTypePause = ToInt(skinTypePause)
+if rootSync == 1 then skinTypePause = SKINTYPE end
+if customSkin == 1 then skinTypePause = 1 end
+if customSkin == 1 then pauseCol = pauseCol else pauseCol = Code[((skinTypePause - 1) * 5) + 4] end
+
+if YAGOO_DATA and YAGOO_DATA.version_status == "ok" then
+  obj.setoption("drawtarget", "tempbuffer", 182, 182)
+
+  obj.load("figure", "円", pauseCol, 182)
+  if pauseGray == 1 then obj.effect("単色化", "強さ", 50, "色", 0x000000, "輝度を保持する", 0) end
+  obj.draw()
+
+  obj.load("figure", "円", 0xffffff, 157)
+  if pauseGray == 1 then obj.effect("単色化", "強さ", 50, "色", 0x000000, "輝度を保持する", 0) end
+  obj.draw()
+
+  for i = 0, 1, 1 do
+    obj.load("figure", "四角形", pauseCol, 70, 4000, false, 0.6)
+    if pauseGray == 1 then obj.effect("単色化", "強さ", 50, "色", 0x000000, "輝度を保持する", 0) end
+    obj.draw(-20 + 40 * i)
+  end
+  obj.copybuffer("object", "tempbuffer")
+end
+
+--------------------------------------------------------------------------------------------------------------------------------
+@コンボ
+--label:holodOverlay
+--information:holodOverlay by TootieJin (v{version})
+--track@xBound:X軸境界,0,9999,1024,1
+--check@rootSync:スキンタイプを設定に同期,1
+--track@skinTypeCombo:スキンタイプ,1,56,1,1
+--value@speed:アニメーション速度,1.00
+--track@clearType:AP/FC,0,2,2,1
+--check@showZeroCombo:0コンボを表示,0
+--separator:ライブスキン (カスタム)
+--check@customSkin:カスタムスキン,0
+--file@digit1:数字の1
+--file@digit2:数字の2
+--file@digit3:数字の3
+--file@digit4:数字の4
+--file@digit5:数字の5
+--file@digit6:数字の6
+--file@digit7:数字の7
+--file@digit8:数字の8
+--file@digit9:数字の9
+--file@digit0:数字の0
+--file@comboLabel:コンボラベル
+--hide@skinTypeCombo:rootSync==1
+--hide@skinTypeCombo:customSkin==1
+--hide@rootSync:customSkin==1
+--hide@digit1:customSkin==0
+--hide@digit2:customSkin==0
+--hide@digit3:customSkin==0
+--hide@digit4:customSkin==0
+--hide@digit5:customSkin==0
+--hide@digit6:customSkin==0
+--hide@digit7:customSkin==0
+--hide@digit8:customSkin==0
+--hide@digit9:customSkin==0
+--hide@digit0:customSkin==0
+--hide@comboLabel:customSkin==0
+
+speed = speed or 1
+clearType = ToInt(clearType)
+skinTypeCombo = ToInt(skinTypeCombo)
+if rootSync == 1 then skinTypeCombo = SKINTYPE end
+
+if YAGOO_DATA and YAGOO_DATA.version_status == "ok" then
+  obj.setoption("drawtarget", "tempbuffer", xBound, 768)
+
+  local internalID = Code[((skinTypeCombo - 1) * 5) + 1]
+
+  local progress_frame = ((obj.frame - OFFSET) - (YAGOO_DATA.current.time * obj.framerate)) * speed
+  local progress_offset = math.min(1, (progress_frame / 1))
+
+  if YAGOO_DATA.current.combo > 0 or showZeroCombo == 1 then
+    local combo_num = YAGOO_DATA.current.combo
+    local combo_anim = 0
+    if progress_frame <= 1 then combo_anim = 1 end
+    local combo_str = string.format("%0"..#tostring(combo_num).."d", math.max(0, combo_num - combo_anim))
+    
+    if clearType == 2 then
+      obj.load("image", YAGOO_DATA.path.."/combo/bg/ui_410_img_bg_ap_"..math.min(4, #combo_str)..".png")
+    elseif clearType == 1 then 
+      obj.load("image", YAGOO_DATA.path.."/combo/bg/ui_410_img_bg_fc_"..math.min(4, #combo_str)..".png")
+    end
+    obj.draw(0, -50, 0, 1.8, 1)
+
+    local fileLabel = YAGOO_DATA.path.."/combo/label/img_live_skin_combo_"..internalID..".png"
+    if comboLabel ~= "" then fileLabel = comboLabel end
+    obj.load("image", fileLabel)
+    obj.draw(0, -195, 0, 0.615, 1)
+
+    local fileDigit = {
+      (digit1 ~= "" and digit1) or YAGOO_DATA.path.."/combo/digit/img_live_skin_num_"..internalID.."-1.png",
+      (digit2 ~= "" and digit2) or YAGOO_DATA.path.."/combo/digit/img_live_skin_num_"..internalID.."-2.png",
+      (digit3 ~= "" and digit3) or YAGOO_DATA.path.."/combo/digit/img_live_skin_num_"..internalID.."-3.png",
+      (digit4 ~= "" and digit4) or YAGOO_DATA.path.."/combo/digit/img_live_skin_num_"..internalID.."-4.png",
+      (digit5 ~= "" and digit5) or YAGOO_DATA.path.."/combo/digit/img_live_skin_num_"..internalID.."-5.png",
+      (digit6 ~= "" and digit6) or YAGOO_DATA.path.."/combo/digit/img_live_skin_num_"..internalID.."-6.png",
+      (digit7 ~= "" and digit7) or YAGOO_DATA.path.."/combo/digit/img_live_skin_num_"..internalID.."-7.png",
+      (digit8 ~= "" and digit8) or YAGOO_DATA.path.."/combo/digit/img_live_skin_num_"..internalID.."-8.png",
+      (digit9 ~= "" and digit9) or YAGOO_DATA.path.."/combo/digit/img_live_skin_num_"..internalID.."-9.png",
+      (digit0 ~= "" and digit0) or YAGOO_DATA.path.."/combo/digit/img_live_skin_num_"..internalID.."-0.png",
+    }
+
+    for i = 1, #combo_str do
+      local digit = combo_str:sub(i, i)
+      local digit_num = tonumber(digit)
+      if digit_num == 0 or digit_num == nil then digit_num = 10 end
+
+      local shift = -(#combo_str / 2) + i - 0.5
+      local shift_fax = math.min(1, math.max(0.66, -((progress_frame - 4) / 4) * 0.15 + 0.66))
+      if progress_frame <= 1 or YAGOO_DATA.current.combo <= 0 then shift_fax = 0.66 end
+
+      obj.load("image", fileDigit[digit_num])
+      obj.draw(shift * 247 * shift_fax, 0, 0, shift_fax)
+    end
+  end
+  obj.copybuffer("object", "tempbuffer")
+end
+
+--------------------------------------------------------------------------------------------------------------------------------
+@判定
+--label:holodOverlay
+--information:holodOverlay by TootieJin (v{version})
+--track@xBound:X軸境界,0,9999,1024,1
+--check@rootSync:スキンタイプを設定に同期,1
+--track@skinTypeJudge:スキンタイプ,1,56,1,1
+--value@speed:アニメーション速度,1.00
+--track@judgeType:判定タイプ,1,6,1,1
+--check@showJudgeIndef:判定を無期限に表示する,0
+--separator:ライブスキン (カスタム)
+--check@customSkin:カスタムスキン,0
+--file@judge1:判定の1
+--file@judge2:判定の2
+--file@judge3:判定の3
+--file@judge4:判定の4
+--file@judge5:判定の5
+--file@judge6:判定の6
+--hide@skinTypeJudge:rootSync==1
+--hide@skinTypeJudge:customSkin==1
+--hide@rootSync:customSkin==1
+--hide@judge1:customSkin==0
+--hide@judge2:customSkin==0
+--hide@judge3:customSkin==0
+--hide@judge4:customSkin==0
+--hide@judge5:customSkin==0
+--hide@judge6:customSkin==0
+
+speed = speed or 1
+judgeType = ToInt(judgeType)
+skinTypeJudge = ToInt(skinTypeJudge)
+if rootSync == 1 then skinTypeJudge = SKINTYPE end
+
+if YAGOO_DATA and YAGOO_DATA.version_status == "ok" then
+  obj.setoption("drawtarget", "tempbuffer", xBound, 512)
+
+  local internalID = Code[((skinTypeJudge - 1) * 5) + 1]
+  local progress_frame = ((obj.frame - OFFSET) - (YAGOO_DATA.current.time * obj.framerate)) * speed
+
+  local fileJudge = {
+    (judge1 ~= "" and judge1) or YAGOO_DATA.path.."/judge/img_live_skin_judge_"..internalID.."-perfect.png",
+    (judge2 ~= "" and judge2) or YAGOO_DATA.path.."/judge/img_live_skin_judge_"..internalID.."-great.png",
+    (judge3 ~= "" and judge3) or YAGOO_DATA.path.."/judge/img_live_skin_judge_"..internalID.."-good.png",
+    (judge4 ~= "" and judge4) or YAGOO_DATA.path.."/judge/img_live_skin_judge_"..internalID.."-bad.png",
+    (judge5 ~= "" and judge5) or YAGOO_DATA.path.."/judge/img_live_skin_judge_"..internalID.."-miss.png",
+    (judge6 ~= "" and judge6) or YAGOO_DATA.path.."/judge/img_live_skin_judge_"..internalID.."-auto.png",
+  }
+
+  if YAGOO_DATA.current.combo > 0 then
+    obj.load("image", fileJudge[judgeType])
+    if progress_frame <= 9 then
+      obj.draw(0, 0, 0, 0.48 + 0.325 * (1 - (1 - (progress_frame / 9)) ^ 2))
+    elseif progress_frame <= 39 or showJudgeIndef == 1 then
+      obj.draw(0, 0, 0, 0.805)
+    elseif progress_frame <= 43 then
+      obj.draw(0, 0, 0, (-0.02075 * progress_frame) + 1.61425)
+    else
+      obj.draw(0, 0, 0, 1, 0)
+    end
+  end
+  obj.copybuffer("object", "tempbuffer")
+end
+
+-- vim: set filetype=lua fileencoding=utf-8:

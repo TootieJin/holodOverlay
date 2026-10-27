@@ -1,0 +1,5 @@
+EASY: #7ad89c
+NORMAL: #f4be67
+HARD: #ef98b6
+EXPERT: #9a92ff
+CREATE: #83daef

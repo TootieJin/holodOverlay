@@ -1,0 +1,54 @@
+--label:Stellar Wave Text
+--track@amp:Amplitude(px),0,500,76.5,0.1
+--track@dl:Delay per char(s),0,0.5,0.0305,0.0001
+--track@fade:Fade-in(s),0,2,0.175,0.001
+--track@st:Start offset(s),-2,5,0,0.001
+--value@xidx:Offset-from char index,8
+--track@st2:Extra offset from split(s),-2,5,0,0.001
+--value@sidx:Start char index,"0"
+
+local s0 = tonumber(sidx) or 0
+local ci = obj.index - s0
+if ci < 0 then return end
+
+local x0 = tonumber(xidx) or 0
+local extra = 0
+if obj.index >= x0 then extra = st2 end
+local t = obj.time - st - extra - ci * dl - fade -- u: 0 = first trough
+
+-- keyframes: {u (s), value (x amp)}
+local K = {
+  {-fade, 1.5},
+  {0,     -0.50},
+  {0.260,  0.25},
+  {0.505, -0.0675},
+  {0.780,  0},
+}
+
+local function ease(p) return (1 - math.cos(math.pi * p)) / 2 end        -- sine in-out
+local function ease0(p) return 0.5 * p + 0.5 * math.sin(p * math.pi / 2) end -- first leg, near-linear
+
+local v
+if t <= K[1][1] then
+  v = 0
+elseif t >= K[#K][1] then
+  v = 0
+else
+  for n = 1, #K - 1 do
+    local a, b = K[n], K[n + 1]
+    if t >= a[1] and t < b[1] then
+      local p = (t - a[1]) / (b[1] - a[1])
+      local e = (n == 1) and ease0(p) or ease(p)
+      v = a[2] + (b[2] - a[2]) * e
+      break
+    end
+  end
+end
+
+obj.oy = obj.oy + v * amp
+
+local al = 1
+if fade > 0 then al = math.min(math.max((t + fade) / fade, 0), 1) end
+obj.alpha = obj.alpha * al
+
+-- vim: set filetype=lua fileencoding=utf-8:

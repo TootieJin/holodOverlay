@@ -1,0 +1,128 @@
+; GNU Affero General Public License v3.0
+; 
+; holodOverlay - A "hololive Dreams"-style video creation tool
+; Copyright (C) 2026 TootieJin
+; 
+; This program is free software: you can redistribute it and/or modify
+; it under the terms of the GNU Affero General Public License as published
+; by the Free Software Foundation, either version 3 of the License, or
+; (at your option) any later version.
+; 
+; This program is distributed in the hope that it will be useful,
+; but WITHOUT ANY WARRANTY; without even the implied warranty of
+; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+; GNU Affero General Public License for more details.
+; 
+; You should have received a copy of the GNU Affero General Public License
+; along with this program. If not, see <https://www.gnu.org/licenses/>.
+; 
+; holodOverlay by TootieJin (v{version})
+; https://github.com/TootieJin/holodOverlay
+
+[設定@holodOverlay]
+設定@holodOverlay=Root@holodOverlay
+スキンタイプを設定に同期=Sync Skin Type to Root
+YAGOOファイル=YAGOO File
+オフセット=Offset
+キャッシュ=Cache
+警告を無視する=Ignore Warning
+透かし=Watermark
+ライブスキン=Live Skin
+スキンタイプ=Skin Type
+
+[レーン@holodOverlay]
+レーン@holodOverlay=Lane@holodOverlay
+スキンタイプを設定に同期=Sync Skin Type to Root
+スキンタイプ=Skin Type
+動的レーン (実験的機能)=Dynamic Lane (Experimental)
+レーン=Lane
+判定ラインの位置=Judgement Line Pos
+左レーン=Left Lane
+右レーン=Right Lane
+背景の透明度=Lane Transparency
+部門ごとのレーン数=Lane per Division
+オフ=Off
+ライブスキン (カスタム)=Live Skin (Custom)
+カスタムスキン=Custom Skin
+色1=Color 1
+色2=Color 2
+アイコン=Icon
+
+[スコア@holodOverlay]
+スコア@holodOverlay=Score@holodOverlay
+X軸境界=X-axis Boundary
+スキンタイプを設定に同期=Sync Skin Type to Root
+スキンタイプ=Skin Type
+アニメーション速度=Animation Speed
+最小桁数=Min Digit
+ランクS+9を超える=Display beyond Rank S+9
+他のランクに「+」を追加する=Add "+" to other ranks
+ライブスキン (カスタム)=Live Skin (Custom)
+カスタムスキン=Custom Skin
+スコアの色=Score Color
+フォント1=Font 1
+フォント2=Font 2
+スキンの装飾=Skin Decoration
+キーホルダー=Keychain
+アクリル作品=Acrylic Piece
+ステッカー=Sticker
+
+[ライフ@holodOverlay]
+ライフ@holodOverlay=Life@holodOverlay
+スキンタイプを設定に同期=Sync Skin Type to Root
+スキンタイプ=Skin Type
+アニメーション速度=Animation Speed
+最大ライフ値=Max LIFE
+ライブスキン (カスタム)=Live Skin (Custom)
+カスタムスキン=Custom Skin
+ライフの色=Life Color
+フォント=Font
+
+[一時停止@holodOverlay]
+一時停止@holodOverlay=Pause@holodOverlay
+X軸境界=X-axis Boundary
+スキンタイプを設定に同期=Sync Skin Type to Root
+スキンタイプ=Skin Type
+一時停止無効=Disable Pause
+ライブスキン (カスタム)=Live Skin (Custom)
+カスタムスキン=Custom Skin
+一時停止の色=Pause Color
+
+[コンボ@holodOverlay]
+コンボ@holodOverlay=Combo@holodOverlay
+X軸境界=X-axis Boundary
+スキンタイプを設定に同期=Sync Skin Type to Root
+スキンタイプ=Skin Type
+アニメーション速度=Animation Speed
+AP/FC=AP/FC
+0コンボを表示=Show 0 Combo
+ライブスキン (カスタム)=Live Skin (Custom)
+カスタムスキン=Custom Skin
+数字の1=Digit 1
+数字の2=Digit 2
+数字の3=Digit 3
+数字の4=Digit 4
+数字の5=Digit 5
+数字の6=Digit 6
+数字の7=Digit 7
+数字の8=Digit 8
+数字の9=Digit 9
+数字の0=Digit 0
+コンボラベル=Combo Label
+
+[判定@holodOverlay]
+判定@holodOverlay=Judgement@holodOverlay
+X軸境界=X-axis Boundary
+スキンタイプを設定に同期=Sync Skin Type to Root
+スキンタイプ=Skin Type
+アニメーション速度=Animation Speed
+判定タイプ=Judge Type
+判定を無期限に表示する=Show judge indefinitely
+ライブスキン (カスタム)=Live Skin (Custom)
+カスタムスキン=Custom Skin
+判定の1=Judge 1
+判定の2=Judge 2
+判定の3=Judge 3
+判定の4=Judge 4
+判定の5=Judge 5
+判定の6=Judge 6

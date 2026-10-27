@@ -1,0 +1,160 @@
+--select@mode:Output=0,Composite (jacket + gray stripes)=0,Jacket window mask (white)=1,Gray stripes only=2
+--track@spd:Speed(%),10,400,100,1
+--track@ang:Angle(deg),20,60,39.5,0.1
+--track@gw:Gray stripe width,50,400,175,1
+--color@gcol:Gray color,0x878791
+
+local SX0 = 460.3
+local BW, BH = 841, 842
+
+local f = obj.time * 60 * spd / 100
+local fi = math.floor(f + 0.5)
+
+local w, h = obj.w, obj.h
+local sc = (w / BW + h / BH) / 2
+local a = math.rad(ang)
+local sn, cs = math.sin(a), math.cos(a)
+
+local function lerp(t, f0, f1, v0, v1)
+  if f1 == f0 then return v0 end
+  return v0 + (v1 - v0) * (t - f0) / (f1 - f0)
+end
+local function table_interp(T, t)
+  if t <= T[1][1] then return T[1][2] end
+  for i = 1, #T - 1 do
+    if t < T[i + 1][1] then return lerp(t, T[i][1], T[i + 1][1], T[i][2], T[i + 1][2]) end
+  end
+  return T[#T][2]
+end
+
+-- gray stripes: {left, right} in source s
+local G3L = { {9,1338},{20,1374},{36,1434},{48,1474},{60,1514},{66,1530},{69,1534},{72,1542} }
+local function grayStripes(t)
+  local s = {}
+  if t < 8 then return s end
+  local b1 = 738 + 2.727 * (t - 13)
+  local b2 = 1130 + 3.27 * (t - 13)
+  local a3 = table_interp(G3L, t)
+  if t < 36 then
+    s[#s + 1] = { b1 - gw, b1 }
+    s[#s + 1] = { b2 - gw, b2 }
+  end
+  if t < 72 then s[#s + 1] = { a3, a3 + gw } end
+  return s
+end
+
+local function grayAlpha(t)
+  if t < 8 then return 0 end
+  local u = math.min((t - 8) / 20, 1)
+  return 1 - (1 - 0.47) * (1 - u) ^ 1.5
+end
+
+-- jacket window: list of {s0, s1} in source s
+local WIN = {
+  {10, 12, 890, nil}, -- right edge = G3 left edge (filled below)
+  {18, 20, 934, 1098},
+  {21, 22, 1290, 1490},
+  {25, 26, 1146, 1334},
+  {29, 30, 866, 1010},
+  {31, 32, 970, 1210},
+}
+local WBIG = { {36,650,1282},{48,642,1290},{60,638,1314},{66,634,1334},{69,630,1350},{71,630,1380} }
+local function windows(t, ti)
+  local r = {}
+  if ti >= 72 then r[1] = { -1000, 4000 }; return r end
+  if ti >= 36 then
+    local l, rr = 650, 1282
+    for i = 1, #WBIG - 1 do
+      if ti < WBIG[i + 1][1] then
+        l = lerp(ti, WBIG[i][1], WBIG[i + 1][1], WBIG[i][2], WBIG[i + 1][2])
+        rr = lerp(ti, WBIG[i][1], WBIG[i + 1][1], WBIG[i][3], WBIG[i + 1][3])
+        break
+      end
+      l, rr = WBIG[#WBIG][2], WBIG[#WBIG][3]
+    end
+    r[1] = { l, rr }
+    return r
+  end
+  for _, e in ipairs(WIN) do
+    if ti >= e[1] and ti <= e[2] then
+      local s1 = e[4]
+      if s1 == nil then s1 = table_interp(G3L, t) end
+      r[1] = { e[3], s1 }
+    end
+  end
+  return r
+end
+
+-- polygon helpers (coordinates: x right, y down, origin = top-left of the image)
+local function clip(poly, nx, ny, c, ge)
+  local out = {}
+  local n = #poly
+  for i = 1, n do
+    local p, q = poly[i], poly[i % n + 1]
+    local dp = nx * p[1] + ny * p[2] - c
+    local dq = nx * q[1] + ny * q[2] - c
+    if not ge then dp = -dp; dq = -dq end
+    if dp >= 0 then out[#out + 1] = p end
+    if (dp >= 0) ~= (dq >= 0) then
+      local k = dp / (dp - dq)
+      out[#out + 1] = { p[1] + (q[1] - p[1]) * k, p[2] + (q[2] - p[2]) * k }
+    end
+  end
+  return out
+end
+
+local function stripePoly(s0, s1)  -- s in source px -> polygon inside the image
+  local p = { {0, 0}, {w, 0}, {w, h}, {0, h} }
+  p = clip(p, sn, cs, (s0 - SX0) * sc, true)
+  if #p < 3 then return nil end
+  p = clip(p, sn, cs, (s1 - SX0) * sc, false)
+  if #p < 3 then return nil end
+  return p
+end
+
+local function fill(poly, textured, alpha)
+  local x0, y0 = poly[1][1] - w / 2, poly[1][2] - h / 2
+  for i = 2, #poly - 1 do
+    local p, q = poly[i], poly[i + 1]
+    local x1, y1 = p[1] - w / 2, p[2] - h / 2
+    local x2, y2 = q[1] - w / 2, q[2] - h / 2
+    if textured then
+      obj.drawpoly(x0, y0, 0, x1, y1, 0, x2, y2, 0, x2, y2, 0,
+                   poly[1][1], poly[1][2], p[1], p[2], q[1], q[2], q[1], q[2], alpha)
+    else
+      obj.drawpoly(x0, y0, 0, x1, y1, 0, x2, y2, 0, x2, y2, 0, 0, 0, 0, 0, 0, 0, 0, 0, alpha)
+    end
+  end
+end
+
+obj.copybuffer("cache:jkmask", "obj")
+obj.setoption("drawtarget", "tempbuffer", w, h)
+
+if mode == 0 or mode == 2 then
+  local ga = grayAlpha(f)
+  if ga > 0 then
+    obj.load("figure", "四角形", gcol, 100)
+    for _, st in ipairs(grayStripes(f)) do
+      local p = stripePoly(st[1], st[2])
+      if p then fill(p, false, ga) end
+    end
+  end
+end
+
+if mode == 0 then
+  obj.copybuffer("obj", "cache:jkmask")
+  for _, wd in ipairs(windows(f, fi)) do
+    local p = stripePoly(wd[1], wd[2])
+    if p then fill(p, true, 1) end
+  end
+elseif mode == 1 then
+  obj.load("figure", "四角形", 0xffffff, 100)
+  for _, wd in ipairs(windows(f, fi)) do
+    local p = stripePoly(wd[1], wd[2])
+    if p then fill(p, false, 1) end
+  end
+end
+
+obj.load("tempbuffer")
+
+-- vim: set filetype=lua fileencoding=utf-8:

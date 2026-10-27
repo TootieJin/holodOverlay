@@ -1,0 +1,623 @@
+--label:文字装飾\等幅テキスト
+--information:等幅テキスト表示 (Monospaced Text)
+--track@pitch:字間,1,500,40,0.01
+--track@lpitch:行間,1,500,60,0.01
+--track@size:サイズ,1,500,40,0.01
+--track@wratio:全角幅(半角比),1,3,2,0.01
+--track@speed:表示速度(文字/秒・0=即時),0,200,0,0.01
+--select@align:文字揃え=4,左寄せ[上]=0,中央揃え[上]=1,右寄せ[上]=2,左寄せ[中]=3,中央揃え[中]=4,右寄せ[中]=5,左寄せ[下]=6,中央揃え[下]=7,右寄せ[下]=8,縦書 上寄[右]=9,縦書 上寄[中]=10,縦書 上寄[左]=11,縦書 中央[右]=12,縦書 中央[中]=13,縦書 中央[左]=14,縦書 下寄[右]=15,縦書 下寄[中]=16,縦書 下寄[左]=17
+--select@deco:文字装飾=0,標準文字=0,影付き文字=1,影付き文字(薄)=2,縁取り文字=3,縁取り文字(細)=4,縁取り文字(太)=5,縁取り文字(角)=6
+--select@cellalign:セル内揃え(横書き)=0,中=0,左=1
+--check@fixed:全文字を同じ幅にする(横書き),0
+--check@bold:太字,0
+--check@italic:斜体,0
+--check@usetag:制御文字を有効にする,1
+--font@fontname:フォント,"MS Gothic"
+--color@col:文字色,0xffffff
+--color@col2:影・縁色,0x000000
+--text@str:テキスト,"<#ff8800>Mono<#>spaced\nモノ<s+10>スペース"
+
+-- ============================================================
+-- 共通ユーティリティ
+-- ============================================================
+local function decodeAt(s, i)
+  local b = string.byte(s, i)
+  local len, cp
+  if b < 0x80 then
+    return string.sub(s, i, i), b, 1
+  elseif b >= 0xF0 then len = 4; cp = b - 0xF0
+  elseif b >= 0xE0 then len = 3; cp = b - 0xE0
+  elseif b >= 0xC0 then len = 2; cp = b - 0xC0
+  else
+    return string.sub(s, i, i), b, 1
+  end
+  for k = 1, len - 1 do
+    local cb = string.byte(s, i + k)
+    if cb and cb >= 0x80 and cb < 0xC0 then
+      cp = cp * 64 + (cb - 0x80)
+    else
+      len = k
+      break
+    end
+  end
+  return string.sub(s, i, i + len - 1), cp, len
+end
+
+local function isHalf(cp)
+  return cp < 0x80 or (cp >= 0xFF61 and cp <= 0xFF9F)
+end
+
+local function isSpace(cp)
+  return cp == 0x20 or cp == 0x09 or cp == 0x3000
+end
+
+local function toBool(v)
+  return (v == true) or (type(v) == "number" and v ~= 0)
+end
+
+-- "+10" "-5" は相対指定、"10" は絶対指定
+local function relNum(s, cur)
+  local v = tonumber(s)
+  if not v then return cur end
+  local f = string.sub(s, 1, 1)
+  if f == "+" or f == "-" then return cur + v end
+  return v
+end
+
+-- 縦書きで90度回転させる文字
+local rotateSet = {}
+for _, cp in ipairs({
+  0x30FC, 0x301C, 0xFF5E, 0x2026, 0x2015, 0x2014, 0x2012, 0x2013, 0x002D,
+  0xFF08, 0xFF09, 0x0028, 0x0029, 0xFF3B, 0xFF3D, 0xFF5B, 0xFF5D,
+  0x300C, 0x300D, 0x300E, 0x300F, 0x3008, 0x3009, 0x300A, 0x300B,
+  0x3010, 0x3011, 0x3014, 0x3015,
+}) do rotateSet[cp] = true end
+
+-- 縦書きで右上に寄せる句読点
+local shiftSet = { [0x3001] = true, [0x3002] = true, [0xFF0C] = true, [0xFF0E] = true }
+
+local useFixed = toBool(fixed)
+
+-- ============================================================
+-- 表示位置の解釈
+-- ============================================================
+local vertical = (align >= 9)
+local anchorH, anchorV
+if vertical then
+  local a = align - 9
+  anchorV = math.floor(a / 3)
+  anchorH = 2 - (a % 3)
+else
+  anchorH = align % 3
+  anchorV = math.floor(align / 3)
+end
+
+-- ============================================================
+-- 制御文字パーサ
+-- ============================================================
+local function newState()
+  return {
+    col = col, col2 = col2, size = size, font = fontname, deco = deco,
+    bold = toBool(bold), italic = toBool(italic),
+    px = 0, py = 0, pz = 0, rot = 0, gw = 0, gh = 0, speed = speed,
+    alpha = 1,
+  }
+end
+
+local function copyState(s)
+  local n = {}
+  for k, v in pairs(s) do n[k] = v end
+  return n
+end
+
+local pages, curPage, curLine
+local tl = { t = 0, count = 0, skipNL = false }   -- 表示タイムライン
+
+local function newLine()
+  curLine = { chars = {}, extra = 0 }
+  curPage.lines[#curPage.lines + 1] = curLine
+end
+
+local function newPage()
+  curPage = { lines = {}, all = {}, rubies = {} }
+  pages[#pages + 1] = curPage
+  newLine()
+end
+
+local function makeChar(st, ch, cp)
+  return {
+    ch = ch, cp = cp,
+    col = st.col, col2 = st.col2, size = st.size, font = st.font, deco = st.deco,
+    bold = st.bold, italic = st.italic, alpha = st.alpha,
+    px = st.px, py = st.py, pz = st.pz, rot = st.rot, gw = st.gw,
+    w = (vertical or useFixed or isHalf(cp)) and 1 or wratio,
+  }
+end
+
+-- ctx = { st=状態, flow=本文か(ルビ内はfalse), list=ルビ文字の格納先 }
+local function emit(ctx, ch, cp, skip)
+  local st = ctx.st
+  if ch == "\n" then
+    if ctx.flow then
+      if tl.skipNL then
+        tl.skipNL = false
+        return
+      end
+      curLine.extra = st.gh
+      newLine()
+    end
+    return
+  end
+  tl.skipNL = false
+  local c = makeChar(st, ch, cp)
+  c.skip = skip
+  if ctx.flow then
+    c.show = tl.t
+    if st.speed > 0 then tl.t = tl.t + 1 / st.speed end
+    tl.count = tl.count + 1
+    curLine.chars[#curLine.chars + 1] = c
+    curPage.all[#curPage.all + 1] = c
+  else
+    ctx.list[#ctx.list + 1] = c
+  end
+end
+
+local function emitText(s, ctx)
+  local i, n = 1, #s
+  while i <= n do
+    local ch, cp, len = decodeAt(s, i)
+    emit(ctx, ch, cp)
+    i = i + len
+  end
+end
+
+-- <?...?> スクリプト実行 (Lua 5.1: loadstring / setfenv)
+local function runScript(body)
+  local out = {}
+  local env = setmetatable({
+    mes = function(...)
+      for _, v in ipairs({ ... }) do out[#out + 1] = tostring(v) end
+    end
+  }, { __index = _G })
+  local code
+  if string.sub(body, 1, 1) == "=" then
+    code = "mes(" .. string.sub(body, 2) .. ")"
+  else
+    code = body
+  end
+  local fn = loadstring(code)
+  if not fn then return "" end
+  setfenv(fn, env)
+  local ok, ret = pcall(fn)
+  if ok and ret ~= nil then out[#out + 1] = tostring(ret) end
+  return table.concat(out)
+end
+
+local function applyDecor(st, d)
+  local digit = string.match(d, "^(%d)")
+  if digit then st.deco = tonumber(digit) end
+  local letters = string.match(d, "%a+") or ""
+  st.bold = (string.find(letters, "B", 1, true) ~= nil)
+  st.italic = (string.find(letters, "I", 1, true) ~= nil)
+end
+
+local parseSeq
+
+-- タグを処理して次の読み取り位置を返す。タグでなければ nil
+local function handleTag(src, i, ctx)
+  local st = ctx.st
+
+  -- <?script?>
+  if string.sub(src, i, i + 1) == "<?" then
+    local e = string.find(src, "?>", i + 2, true)
+    if not e then return nil end
+    emitText(runScript(string.sub(src, i + 2, e - 1)), ctx)
+    return e + 2
+  end
+
+  -- </> テキストブロック区切り / ルビ </>漢字<!倍率>ふりがな</>
+  if string.sub(src, i, i + 2) == "</>" then
+    local e = string.find(src, "</>", i + 3, true)
+    if e and ctx.flow then
+      local seg = string.sub(src, i + 3, e - 1)
+      local k = string.find(seg, "<!", 1, true)
+      if k then
+        local close = string.find(seg, ">", k + 2, true)
+        if close then
+          local base = string.sub(seg, 1, k - 1)
+          local spec = string.sub(seg, k + 2, close - 1)
+          local rtext = string.sub(seg, close + 1)
+          local sc = string.match(spec, "^([%d%.]*)%+?$")
+          local scale = (sc and tonumber(sc)) or 0.5
+
+          local pg = curPage
+          local before = #pg.all
+          parseSeq(base, ctx)
+          local rctx = { st = copyState(ctx.st), flow = false, list = {} }
+          parseSeq(rtext, rctx)
+          local after = #pg.all
+          if after > before and #rctx.list > 0 then
+            pg.rubies[#pg.rubies + 1] = {
+              first = pg.all[before + 1], last = pg.all[after],
+              chars = rctx.list, scale = scale,
+            }
+          end
+          return e + 3
+        end
+      end
+    end
+    return i + 3
+  end
+
+  local j = string.find(src, ">", i + 1, true)
+  if not j then return nil end
+  local tag = string.sub(src, i + 1, j - 1)
+  local nextI = j + 1
+
+  -- 色 <#rrggbb[,rrggbb]> / <#>
+  if string.sub(tag, 1, 1) == "#" then
+    local a, b = string.match(tag, "^#([^,]*),?(.*)$")
+    if a == "" and b == "" then
+      st.col = col; st.col2 = col2
+    else
+      if a ~= "" and string.match(a, "^%x+$") and #a <= 6 then st.col = tonumber(a, 16) end
+      if b ~= "" and string.match(b, "^%x+$") and #b <= 6 then st.col2 = tonumber(b, 16) end
+      -- プリセット色名は参照できないため無視
+    end
+    return nextI
+  end
+
+  -- サイズ <s32> <s+10> <s*1.5> <s> <s32,フォント,BIS,縁>
+  do
+    local sg, rest = string.match(tag, "^s([%+%-%*]?[%d%.]*)(.*)$")
+    if sg and (rest == "" or string.sub(rest, 1, 1) == ",") then
+      if sg == "" then
+        st.size = size
+      else
+        local op = string.sub(sg, 1, 1)
+        local hasOp = (op == "+" or op == "-" or op == "*")
+        local num = tonumber(hasOp and string.sub(sg, 2) or sg)
+        if num then
+          if op == "+" then st.size = st.size + num
+          elseif op == "-" then st.size = st.size - num
+          elseif op == "*" then st.size = st.size * num
+          else st.size = num end
+          if st.size < 1 then st.size = 1 end
+        end
+      end
+      if rest ~= "" then
+        local f, d = string.match(rest, "^,([^,]*),?([^,]*)")
+        if f and f ~= "" then st.font = f end
+        if d and d ~= "" then applyDecor(st, d) end
+      end
+      return nextI
+    end
+  end
+
+  -- フォント・装飾 <@名前,装飾> / <@> / <@+B> <@-B>
+  if string.sub(tag, 1, 1) == "@" then
+    local sign, letters = string.match(tag, "^@([%+%-])([BIS]+)$")
+    if sign then
+      local on = (sign == "+")
+      if string.find(letters, "B", 1, true) then st.bold = on end
+      if string.find(letters, "I", 1, true) then st.italic = on end
+      return nextI
+    end
+    local body = string.sub(tag, 2)
+    if body == "" then
+      st.font = fontname; st.deco = deco
+      st.bold = toBool(bold); st.italic = toBool(italic)
+    else
+      local f, d = string.match(body, "^([^,]*),?(.*)$")
+      if f and f ~= "" then st.font = f end
+      if d and d ~= "" then applyDecor(st, d) end
+    end
+    return nextI
+  end
+
+  -- プリセット <$name> は未対応 (読み飛ばし)
+  if string.sub(tag, 1, 1) == "$" then return nextI end
+
+  -- 絵文字 <&name> は未対応 (1マス確保のみ)
+  if string.sub(tag, 1, 1) == "&" then
+    emit(ctx, "", 0, true)
+    return nextI
+  end
+
+    -- 透明度 <a0.5> <a+0.2> <a-0.2> <a>  (0=透明 〜 1=不透明)
+  do
+    local v = string.match(tag, "^a([%+%-]?[%d%.]*)$")
+    if v then
+      if v == "" then
+        st.alpha = 1
+      else
+        local a = relNum(v, st.alpha)
+        if a < 0 then a = 0 elseif a > 1 then a = 1 end
+        st.alpha = a
+      end
+      return nextI
+    end
+  end
+
+  -- 表示速度 <r10> / <r>
+  do
+    local v = string.match(tag, "^r([%d%.]*)$")
+    if v then
+      if v == "" then st.speed = speed else st.speed = tonumber(v) or st.speed end
+      return nextI
+    end
+  end
+
+  -- 表示待ち <w5> <w*0.2>
+  do
+    local star, v = string.match(tag, "^w(%*?)([%d%.]+)$")
+    if v then
+      if ctx.flow then
+        local wt = tonumber(v) or 0
+        if star == "*" then wt = wt * tl.count end
+        tl.t = tl.t + wt
+      end
+      return nextI
+    end
+  end
+
+  -- 表示クリア <c> <c5> <c*0.2>
+  do
+    local star, v = string.match(tag, "^c(%*?)([%d%.]*)$")
+    if star then
+      if ctx.flow then
+        local wt = tonumber(v) or 0
+        if star == "*" then wt = wt * tl.count end
+        local at = tl.t + wt
+        for _, c in ipairs(curPage.all) do c.hide = at end
+        tl.t = at
+        tl.count = 0
+        newPage()
+        tl.skipNL = true
+      end
+      return nextI
+    end
+  end
+
+  -- 座標 <p10,20,30> <p+10> <p>
+  do
+    local ps = string.match(tag, "^p([%d%.,%+%-]*)$")
+    if ps then
+      if ps == "" then
+        st.px, st.py, st.pz = 0, 0, 0
+      else
+        local parts = {}
+        for p in string.gmatch(ps .. ",", "([^,]*),") do parts[#parts + 1] = p end
+        local keys = { "px", "py", "pz" }
+        for k = 1, 3 do
+          local p = parts[k]
+          if p and p ~= "" then st[keys[k]] = relNum(p, st[keys[k]]) end
+        end
+      end
+      return nextI
+    end
+  end
+
+  -- 文字間隔・行間隔 <gw10> <gh10> <gw> <gh>
+  do
+    local v = string.match(tag, "^gw([%+%-]?[%d%.]*)$")
+    if v then
+      if v == "" then st.gw = 0 else st.gw = relNum(v, st.gw) end
+      return nextI
+    end
+    v = string.match(tag, "^gh([%+%-]?[%d%.]*)$")
+    if v then
+      if v == "" then st.gh = 0 else st.gh = relNum(v, st.gh) end
+      return nextI
+    end
+  end
+
+  -- 拡大率 <tw> <th> は未対応 (読み飛ばし) / 角度 <tr90> <tr+45> <tr>
+  if string.match(tag, "^t[wh][%d%.]*$") then return nextI end
+  do
+    local v = string.match(tag, "^tr([%+%-]?[%d%.]*)$")
+    if v then
+      if v == "" then st.rot = 0 else st.rot = relNum(v, st.rot) end
+      return nextI
+    end
+  end
+
+  return nil
+end
+
+parseSeq = function(src, ctx)
+  local i, n = 1, #src
+  while i <= n do
+    if string.byte(src, i) == 60 then      -- '<'
+      local nx = handleTag(src, i, ctx)
+      if nx then
+        i = nx
+      else
+        emit(ctx, "<", 60)
+        i = i + 1
+      end
+    else
+      local ch, cp, len = decodeAt(src, i)
+      emit(ctx, ch, cp)
+      i = i + len
+    end
+  end
+end
+
+-- ===== 解析の実行 =====
+local text = tostring(str or "")
+text = string.gsub(text, "\r\n", "\n")
+text = string.gsub(text, "\r", "\n")
+
+pages = {}
+newPage()
+local mainCtx = { st = newState(), flow = true }
+if toBool(usetag) then
+  text = string.gsub(text, "<//.-//>", "")     -- コメント除去
+  parseSeq(text, mainCtx)
+else
+  emitText(text, mainCtx)
+end
+
+-- ============================================================
+-- レイアウト計算
+-- ============================================================
+local maxAdvance, maxExtent = 0, 0
+local maxSize, maxOff = size, 0
+local anyDeco, anyRuby = (deco ~= 0), false
+
+for _, pg in ipairs(pages) do
+  local y0 = 0
+  for _, ln in ipairs(pg.lines) do
+    local total = 0
+    for _, c in ipairs(ln.chars) do
+      c.adv = c.w * pitch + c.gw
+      total = total + c.adv
+      if c.size > maxSize then maxSize = c.size end
+      if c.deco ~= 0 then anyDeco = true end
+      local o = math.max(math.abs(c.px), math.abs(c.py))
+      if o > maxOff then maxOff = o end
+    end
+    ln.total = total
+    ln.start = y0
+    y0 = y0 + lpitch + ln.extra
+    if total > maxAdvance then maxAdvance = total end
+  end
+  pg.extent = y0
+  if y0 > maxExtent then maxExtent = y0 end
+  if #pg.rubies > 0 then anyRuby = true end
+end
+
+local contentW, contentH
+if vertical then
+  contentW = math.max(1, math.ceil(maxExtent))
+  contentH = math.max(1, math.ceil(maxAdvance))
+else
+  contentW = math.max(1, math.ceil(maxAdvance))
+  contentH = math.max(1, math.ceil(maxExtent))
+end
+
+local pad = 0
+if anyDeco then pad = math.ceil(maxSize * 0.25) + 2 end
+pad = pad + math.ceil(maxOff)
+local over = maxSize - math.min(pitch, lpitch)
+if over > 0 then pad = pad + math.ceil(over / 2) end
+if anyRuby then pad = pad + math.ceil(maxSize * 0.6) end
+
+-- アンカー(バッファ中心)から見た文字領域の起点。左/上=0、中央=-半分、右/下=-全体
+local originX = -contentW * anchorH / 2
+local originY = -contentH * anchorV / 2
+
+-- バッファはアンカーを中心に左右対称・偶数サイズにする
+local hx = contentW * ((anchorH == 1) and 0.5 or 1) + pad
+local hy = contentH * ((anchorV == 1) and 0.5 or 1) + pad
+local W = math.min(math.max(2, math.ceil(hx) * 2), 4096)
+local H = math.min(math.max(2, math.ceil(hy) * 2), 4096)
+
+-- ============================================================
+-- 描画
+-- ============================================================
+obj.setoption("drawtarget", "tempbuffer", W, H)
+
+local now = obj.time
+
+local function visible(c)
+  return c.show <= now and (c.hide == nil or now < c.hide)
+end
+
+-- leftX が与えられ、かつセル内左揃えの場合は左端基準で配置
+local function drawChar(c, cx, cy, rz, leftX)
+  obj.setfont(c.font, c.size, c.deco, c.col, c.col2, c.bold, c.italic)
+  obj.load("text", c.ch)
+  if leftX and cellalign ~= 0 then cx = leftX + obj.w / 2 end
+  obj.draw(cx + c.px, cy + c.py, c.pz, 1, c.alpha, 0, 0, rz + c.rot)
+end
+
+for _, pg in ipairs(pages) do
+  for _, ln in ipairs(pg.lines) do
+    if vertical then
+      local lineH = ln.total
+      local top
+      if anchorV == 0 then
+        top = 0
+      elseif anchorV == 1 then
+        top = (contentH - lineH) / 2
+      else
+        top = contentH - lineH
+      end
+
+      local x = originX + contentW - (ln.start + lpitch / 2)
+      local cursor = top
+      for _, c in ipairs(ln.chars) do
+        local cx = x
+        local cy = originY + cursor + (c.w * pitch) / 2
+        c.cx, c.cy = cx, cy
+        if not (c.skip or isSpace(c.cp)) and visible(c) then
+          local rz = 0
+          local dx, dy = 0, 0
+          if rotateSet[c.cp] then
+            rz = 90
+          elseif shiftSet[c.cp] then
+            dx = c.size * 0.35
+            dy = -c.size * 0.35
+          end
+          drawChar(c, cx + dx, cy + dy, rz)
+        end
+        cursor = cursor + c.adv
+      end
+    else
+      local lineW = ln.total
+      local left
+      if anchorH == 0 then
+        left = 0
+      elseif anchorH == 1 then
+        left = (contentW - lineW) / 2
+      else
+        left = contentW - lineW
+      end
+
+      local y = originY + ln.start + lpitch / 2
+      local cursor = left
+      for _, c in ipairs(ln.chars) do
+        local cellW = c.w * pitch
+        local cx = originX + cursor + cellW / 2
+        c.cx, c.cy = cx, y
+        if not (c.skip or isSpace(c.cp)) and visible(c) then
+          drawChar(c, cx, y, 0, originX + cursor)
+        end
+        cursor = cursor + c.adv
+      end
+    end
+  end
+
+  -- ルビ (ふりがな)
+  for _, r in ipairs(pg.rubies) do
+    if r.first.cx and visible(r.first) then
+      local n = #r.chars
+      local rs = r.scale
+      local rp = pitch * rs
+      local mx = (r.first.cx + r.last.cx) / 2
+      local my = (r.first.cy + r.last.cy) / 2
+      for k, rc in ipairs(r.chars) do
+        if not isSpace(rc.cp) and not rc.skip then
+          local rsize = math.max(1, rc.size * rs)
+          local x, y
+          if vertical then
+            x = mx + r.first.size / 2 + rsize / 2
+            y = my + (k - (n + 1) / 2) * rp
+          else
+            x = mx + (k - (n + 1) / 2) * rp
+            y = my - r.first.size / 2 - rsize / 2
+          end
+          obj.setfont(rc.font, rsize, rc.deco, rc.col, rc.col2, rc.bold, rc.italic)
+          obj.load("text", rc.ch)
+          obj.draw(x, y, 0, 1, rc.alpha, 0, 0, 0)
+        end
+      end
+    end
+  end
+end
+
+obj.copybuffer("object", "tempbuffer")
+
+-- vim: set filetype=lua fileencoding=utf-8:
