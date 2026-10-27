@@ -1,12 +1,8 @@
-<head>
-  <link href="https://fonts.googleapis.com/css2?family=LINE+Seed+JP:wght@800&display=swap" rel="stylesheet">
-</head>
-
 <p align="center">
   <strong><a href="./README.md">English</a> | 日本語</strong>
 </p>
 
-<h1 align="center" style="font-family: 'LINE Seed JP', sans-serif;">
+<h1 align="center">
   <img src="./icons/holodOverlay-icon.png" width="120"><br>
   holodOverlay
 </h1>
@@ -33,9 +29,7 @@
   <img src="./icons/holodOverlay-thumbnail.png">
 </p>
 
-<h1 style="font-family: 'LINE Seed JP', sans-serif;">
-  holodOverlay / ホロドリ風動画作成補助ツール
-</h1>
+# holodOverlay / ホロドリ風動画作成補助ツール
 
 **[TootieJin](https://tootiejin.com)によるholodOverlay**は、ホロドリの創作譜面をホロドリ風の動画にするためのオープンソースのツールです。このツールは、公式ゲーム内のカスタムチャートと全く同じ見た目を再現しつつ、動画編集ソフト（AviUtl ExEdit2）を使用してUI（HUD）を「操作」する機能を提供します。
 
