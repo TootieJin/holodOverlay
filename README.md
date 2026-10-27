@@ -1,8 +1,12 @@
+<head>
+  <link href="https://fonts.googleapis.com/css2?family=LINE+Seed+JP:wght@800&display=swap" rel="stylesheet">
+</head>
+
 <p align="center">
   <strong>English | <a href="./README-ja.md">日本語</a></strong>
 </p>
 
-<h1 align="center">
+<h1 align="center" style="font-family: 'LINE Seed JP', sans-serif;">
   <img src="./icons/holodOverlay-icon.png" width="120"><br>
   holodOverlay
 </h1>
@@ -29,7 +33,9 @@
   <img src="./icons/holodOverlay-thumbnail.png">
 </p>
 
-# holodOverlay / A "hololive Dreams"-style video creation tool
+<h1 style="font-family: 'LINE Seed JP', sans-serif;">
+  holodOverlay / A "hololive Dreams"-style video creation tool
+</h1>
 
 **holodOverlay by [TootieJin](https://tootiejin.com)** is an open-sourced tool to make <u>hololive Dreams Fanmade (custom chart) videos</u>. This tool provides an identical look to how custom charts should look like in the official game, while giving users the ability to 'manipulate' their UI (or HUD) using the video editor (AviUtl ExEdit2).
 
