@@ -74,6 +74,11 @@ https://github.com/user-attachments/assets/d83ed282-73db-417d-b25c-c5a701635bcc
 
 <img src="./icons/aviutl2-preview.png">
 
+## 動画例（画像をクリックして視聴）
+  - TootieJin (30000人以上登録者数)
+
+[![KINGWORLD (FULL ver.)](https://readme-svg-youtube-preview.vercel.app/badge?id=EHJ0YcCxk5A&width=320&radius=8&bg=0d1117&title_color=ffffff&title_opacity=1&plate_color=0f1117&plate_opacity=0.78&title_position=overlay_bottom&border_width=1&border_color=ffffff)](https://youtu.be/EHJ0YcCxk5A)
+
 ## 利用規約
 
 1. **(必須)** 動画の説明文に、こちらのテキストをコピーしてください：
