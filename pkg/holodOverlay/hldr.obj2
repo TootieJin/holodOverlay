@@ -606,15 +606,22 @@ if YAGOO_DATA and YAGOO_DATA.version_status == "ok" then
     Draw_C_Old(0, 330, 0, 0.2, 1, -48, 0, 0, shiftR2 - 275, judgelineVPos2, 0)
   else
     obj.setoption("drawtarget", "tempbuffer", 2360, 1640)
+  
     obj.load("image", YAGOO_DATA.path.."/lane/lane_template.png")
     obj.effect("unmult")
     obj.effect("マスク", "サイズ", 3000, "マスクの種類", "三角形")
     obj.draw(0, 0, 0, 0.815, 1)
+
+    if WATERMARK == 1 and YAGOO_DATA.version_status == "ok" then
+      obj.load("image", YAGOO_DATA.path.."/holodOverlay-logo-mark.png")
+      obj.draw(0, obj.screen_h * 0.45, 0, 0.4 * (obj.screen_h / 1080) * ((obj.screen_w / obj.screen_h) / (16/9)), 0.2)
+    end
+  
     obj.copybuffer("object", "tempbuffer")
   end
 end
 
-if WATERMARK == 1 and YAGOO_DATA.version_status == "ok" then
+if WATERMARK == 1 and YAGOO_DATA.version_status == "ok" and dynamicLane == 1 then
   obj.load("image", YAGOO_DATA.path.."/holodOverlay-logo-mark.png")
   obj.draw(0, obj.screen_h * 0.45, 0, 0.4 * (obj.screen_h / 1080) * ((obj.screen_w / obj.screen_h) / (16/9)), 0.2)
 end
@@ -694,9 +701,9 @@ if YAGOO_DATA and YAGOO_DATA.version_status == "ok" then
   end
 
   local rank = rankStr[YAGOO_DATA.rank_current.rankindex]
-  local rankPrev = rankStr[math.max(1, YAGOO_DATA.rank_current.rankindex - 1)]
-  local rankBefore = rankStr[math.max(1, YAGOO_DATA.rank_previous.rankindex)]
-  if (rankPlus == 1 and plus > 0) or (rankPlus == 0 and YAGOO_DATA.rank_current.rankindex == 5 and plus > 0) then rankPrev = rank end
+  local rankBefore = rankStr[math.max(1, YAGOO_DATA.rank_current.rankindex - 1)]
+  local rankPrev = rankStr[math.max(1, YAGOO_DATA.rank_previous.rankindex)]
+  if (rankPlus == 1 and plus > 0) or (rankPlus == 0 and YAGOO_DATA.rank_current.rankindex == 5 and plus > 0) then rankBefore = rank end
 
   local rankSize = -79/600 * math.abs((progress_rank_offset * 12) - 9) + 1.185
   local rankSizePrev = 0.79 * (1 - progress_rank_offset)
@@ -802,13 +809,13 @@ if YAGOO_DATA and YAGOO_DATA.version_status == "ok" then
   obj.draw(414.0, -29.5, 0, 0.9, 1)
   obj.draw(628.5, -29.5, 0, 0.9, 1)
 
-  if YAGOO_DATA.current.combo > 0 and progress_rank_offset <= 12 and (rankPlus == 1 or rankS9 == 1) and plus == YAGOO_DATA.rank_current.plus then
-    obj.load("image", YAGOO_DATA.path.."/score/rank/rank" .. rankPrev .. ".png")
+  if YAGOO_DATA.current.combo > 0 and progress_rank_offset <= 12 and rankPlus == 1 and plus == YAGOO_DATA.rank_current.plus then
+    obj.load("image", YAGOO_DATA.path.."/score/rank/rank" .. rankBefore .. ".png")
     obj.draw(-581, -5, 0, rankSizePrev, 1, 0, 0, rankRZPrev)
     obj.load("image", YAGOO_DATA.path.."/score/rank/rank" .. rank .. ".png")
     obj.draw(-581, -5, 0, rankSize, 1, 0, 0, rankRZ)
-  elseif YAGOO_DATA.current.combo > 0 and progress_rank_offset <= 12 and rankPlus == 0 and YAGOO_DATA.rank_current.plus <= 9 and (rankBefore ~= rank or rankBefore == "S") then
-    obj.load("image", YAGOO_DATA.path.."/score/rank/rank" .. rankBefore .. ".png")
+  elseif YAGOO_DATA.current.combo > 0 and progress_rank_offset <= 12 and rankPlus == 0 and YAGOO_DATA.rank_current.plus <= 9 and (rankPrev ~= rank or rankPrev == "S") then
+    obj.load("image", YAGOO_DATA.path.."/score/rank/rank" .. rankPrev .. ".png")
     obj.draw(-581, -5, 0, rankSizePrev, 1, 0, 0, rankRZPrev)
     obj.load("image", YAGOO_DATA.path.."/score/rank/rank" .. rank .. ".png")
     obj.draw(-581, -5, 0, rankSize, 1, 0, 0, rankRZ)

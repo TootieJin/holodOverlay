@@ -82,7 +82,7 @@ func checkUpdate() bool {
 	updateCheckFile.WriteString(strconv.FormatInt(time.Now().Unix(), 10))
 
 	latestVersion := strings.TrimPrefix(release.GetTagName(), "v")
-	if latestVersion == holodOverlay.Version {
+	if latestVersion == holodOverlay.Version || holodOverlay.Version == "0.0.0" {
 		return false
 	}
 
