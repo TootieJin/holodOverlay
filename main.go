@@ -277,7 +277,8 @@ func origMain(isOptionSpecified bool) {
 				fmt.Println(color.RedString(fmt.Sprintf("FAIL: %s", err.Error())))
 				return
 			} else {
-				fmt.Println(color.HiYellowString("WARN: AviUtl ExEdit2を使用できるように、システムのロケールを「日本語（日本）」に変更しました。\n変更を有効にするには、PCを再起動する必要があります。\nSystem locale has been changed to \"Japanese (Japan)\" to be able to use AviUtl ExEdit2.\nYou must restart your computer for it to take effect.\n\n- 何かキーを押すと続行します...\n- Press any key to continue..."))
+				fmt.Println(color.HiYellowString("WARN: AviUtl ExEdit2を使用できるように、システムのロケールを「日本語（日本）」に変更しました。\n変更を有効にするには、PCを再起動する必要があります。\nSystem locale has been changed to \"Japanese (Japan)\" to be able to use AviUtl ExEdit2.\nYou must restart your computer for it to take effect.\n"))
+				fmt.Println(color.CyanString("\n- 何かキーを押すと続行します...\n- Press any key to continue..."))
 				before, _ := rawmode.Enable()
 				bufio.NewReader(os.Stdin).ReadByte()
 				rawmode.Restore(before)
