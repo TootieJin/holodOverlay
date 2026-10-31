@@ -266,11 +266,7 @@ func origMain(isOptionSpecified bool) {
 		fmt.Println(color.RedString(fmt.Sprintf("FAIL: %s", err.Error())))
 		return
 	} else if locale != "ja-JP" {
-<<<<<<< HEAD
 		fmt.Println(color.CyanString("\nINFO: お使いのシステムロケールが「日本語（日本）」に設定されていません。変更しますか？[Y/N]\nYour system locale is not set to \"Japanese (Japan)\". Do you want to change it? [Y/N]"))
-=======
-		fmt.Print(color.CyanString("\nINFO: お使いのシステムロケールが「日本語（日本）」に設定されていません。変更しますか？[Y/N]\nYour system locale is not set to \"Japanese (Japan)\". Do you want to change it? [Y/N]"))
->>>>>>> b643252e043259b856fd7b3bb8718fba4d226818
 		before, _ := rawmode.Enable()
 		tmpChangeLocaleByte, _ := bufio.NewReader(os.Stdin).ReadByte()
 		tmpChangeLocale := string(tmpChangeLocaleByte)
@@ -295,11 +291,7 @@ func origMain(isOptionSpecified bool) {
 
 	if shouldCheckUpdate() {
 		if !isOptionSpecified && checkUpdate() {
-<<<<<<< HEAD
 			fmt.Println("\n最新リリースのページを開きますか？[Y/N]\nDo you want to open the latest release page? [Y/N]")
-=======
-			fmt.Print("\n最新リリースのページを開きますか？[Y/N]\nDo you want to open the latest release page? [Y/N]")
->>>>>>> b643252e043259b856fd7b3bb8718fba4d226818
 			before, _ := rawmode.Enable()
 			tmpOpenBrowserByte, _ := bufio.NewReader(os.Stdin).ReadByte()
 			tmpOpenBrowser := string(tmpOpenBrowserByte)
