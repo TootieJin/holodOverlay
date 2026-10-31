@@ -130,7 +130,7 @@ Usage: holodOverlay [オプション (Options)] [譜面ID (Chart ID)]
 Below will provide all adjustments you can make on all holodOverlay elements, along with <u>Custom Skins</u>.
 
 > [!TIP]
-> You can <u>save your configurations</u> by creating alias / saving alias as file (`.object`). Alias can then be drag-and-dropped into the timeline to insert holodOverlay elements with your configurations.<br>
+> You can save your configurations by creating alias / saving alias as file (`.object`). Alias can then be drag-and-dropped into the timeline to insert holodOverlay elements with your configurations.<br>
 > <u>**NOTE: Remember to change your `data.yagoo` when switching to other charts this way!**</u> <br><br>
 > <img src="./icons/save-alias.png" width=50%>
 
