@@ -152,7 +152,7 @@ Below will provide all adjustments you can make on all holodOverlay elements, al
 
 | Name | Description | Default | Range |
 | --- | --- | :---: | :---: |
-| Skin Type<br>`track` | <img src="./icons/ui-test.gif" width=50%><br>Select which skin type to use in the [Skin Type List.](#skin-type-list)<br><i>- This track bar will sync all elements that enabled the "Sync Skin Type to Root" option.</i> | 1 | 1 ~ 56 |
+| Skin Type<br>`track` | <img src="./icons/ui-test.gif" width=70%><br>Select which skin type to use in the [Skin Type List.](#skin-type-list)<br><i>- This track bar will sync all elements that enabled the "Sync Skin Type to Root" option.</i> | 1 | 1 ~ 56 |
 
 ## Lane@holodOverlay
 
@@ -208,8 +208,8 @@ Options below will be shown if "Custom Skin" is enabled.
 | Name | Description | Default |
 | --- | --- | :---: |
 | Score Color<br>`color` | Color of the base in Score | `28c3ff` |
-| Font 1<br>`font` | Font for Total Score and Plus<br><img src="./icons/score-font1.png" width=50%> | `LINE Seed Sans App ExtraBold` |
-| Font 2<br>`font` | Font for Added Score<br><img src="./icons/score-font2.png" width=50%> | `TT-Ro GSan Serif StdN B` |
+| Font 1<br>`font` | Font for Total Score and Plus<br><img src="./icons/score-font1.png" width=70%> | `LINE Seed Sans App ExtraBold` |
+| Font 2<br>`font` | Font for Added Score<br><img src="./icons/score-font2.png" width=70%> | `TT-Ro GSan Serif StdN B` |
 
 **Skin Decoration**
 
