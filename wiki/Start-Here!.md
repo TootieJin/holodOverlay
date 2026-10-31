@@ -144,9 +144,9 @@ Below will provide all adjustments you can make on all holodOverlay elements, al
 | --- | --- | :---: | :---: |
 | YAGOO File<br>`file` | Selects a `.yagoo` file to be used for parsing events Score, Combo, etc. | - | - |
 | Offset<br>`track` | Number of frames to shift events<br>- Increase to shift timing later<br>- Decrease to shift timing earlier | 216.00 | -99999.99 ~ 99999.99 |
-| Cache<br>`check` | Cache the data in the `data.yagoo` file. When cache is set to 0, any change in the `data.yagoo` is applied immediately | <input type="checkbox" disabled checked> ON | - |
-| Ignore Warning<br>`check` | <img src="./icons/warning.png"><br>Disable showing the yellow warning text at the bottom of the preview<br><i>- These texts will not be rendered when exporting</i> | <input type="checkbox" disabled> OFF | - |
-| Watermark<br>`check` | <img src="./icons/watermark.png"><br>Toggle showing watermark at the bottom of the video | <input type="checkbox" disabled checked> ON | - |
+| Cache<br>`check` | Cache the data in the `data.yagoo` file. When cache is set to 0, any change in the `data.yagoo` is applied immediately | ON | - |
+| Ignore Warning<br>`check` | <img src="./icons/warning.png"><br>Disable showing the yellow warning text at the bottom of the preview<br><i>- These texts will not be rendered when exporting</i> | OFF | - |
+| Watermark<br>`check` | <img src="./icons/watermark.png"><br>Toggle showing watermark at the bottom of the video | ON | - |
 
 ### Live Skin
 
@@ -162,14 +162,14 @@ Below will provide all adjustments you can make on all holodOverlay elements, al
 
 | Name | Description | Default | Range |
 | --- | --- | :---: | :---: |
-| Dynamic Lane (Experimental)<br>`check` | Toggle the dynamic lane option<br><i>- You can disable this for the true default lane element.</i> | <input type="checkbox" disabled checked> ON | - |
+| Dynamic Lane (Experimental)<br>`check` | Toggle the dynamic lane option<br><i>- You can disable this for the true default lane element.</i> | ON | - |
 
 ### Lane
 Options below will be shown if "Dynamic Lane (Experimental)" is enabled.
 
 | Name | Description | Default | Range |
 | --- | --- | :---: | :---: |
-| Sync Skin Type to Root<br>`check` | Sync the skin type value from [Root@holodOverlay](#rootholodoverlay) | <input type="checkbox" disabled checked> ON | - |
+| Sync Skin Type to Root<br>`check` | Sync the skin type value from [Root@holodOverlay](#rootholodoverlay) | ON | - |
 | Skin Type<br>`track` | Select which skin type to use in the [Skin Type List.](#skin-type-list)<br><i>- This track bar is shown when "Sync Skin Type to Root" is disabled.</i> | 1 | 1 ~ 56 |
 | Judgement Line Pos<br>`track` | Adjust the vertical position of the judgement line<br>- Increase to move up<br>- Decrease to move down | 0.00 | -1000.00 ~ 1000.00 |
 | Left Lane<br>`track` | Adjust the left side of the lane. Each unit is the number of slots from the center<br><i>- This track bar is made in a way that dragging to the left (decreasing) moves the left lane to the left, and vice versa</i> | -6.00 | -48.00 ~ 48.00 |
@@ -193,12 +193,12 @@ Options below will be shown if "Custom Skin" AND "Dynamic Lane (Experimental)" a
 | Name | Description | Default | Range |
 | --- | --- | :---: | :---: |
 | X-axis Boundary<br>`track` | Adjust the width of the drawing area in the element<br><i>- This track bar may be needed when you use very large numbers.</i> | 1920 | 0 ~ 9999 |
-| Sync Skin Type to Root<br>`check` | Sync the skin type value from [Root@holodOverlay](#rootholodoverlay) | <input type="checkbox" disabled checked> ON | - |
+| Sync Skin Type to Root<br>`check` | Sync the skin type value from [Root@holodOverlay](#rootholodoverlay) | ON | - |
 | Skin Type<br>`track` | Select which skin type to use in the [Skin Type List.](#skin-type-list)<br><i>- This track bar is shown when "Sync Skin Type to Root" is disabled.</i> | 1 | 1 ~ 56 |
 | Animation Speed<br>`value` | Adjust animation speed | 1.00 | - |
 | Min Digit<br>`track` | Render the minimum amount of digits in score | 8 | 1 ~ 99 |
-| Display beyond Rank S+9<br>`check` | Show ranks beyond S+9 | <input type="checkbox" disabled> OFF | - |
-| Add "+" to other ranks<br>`check` | Show ranks the same way as Unit Score (D+, C+, B+, A+) | <input type="checkbox" disabled> OFF | - |
+| Display beyond Rank S+9<br>`check` | Show ranks beyond S+9 | OFF | - |
+| Add "+" to other ranks<br>`check` | Show ranks the same way as Unit Score (D+, C+, B+, A+) | OFF | - |
 
 ### Live Skin (Custom)
 Options below will be shown if "Custom Skin" is enabled.
@@ -225,7 +225,7 @@ Options below will be shown if "Custom Skin" is enabled.
 
 | Name | Description | Default | Range |
 | --- | --- | :---: | :---: |
-| Sync Skin Type to Root<br>`check` | Sync the skin type value from [Root@holodOverlay](#rootholodoverlay) | <input type="checkbox" disabled checked> ON | - |
+| Sync Skin Type to Root<br>`check` | Sync the skin type value from [Root@holodOverlay](#rootholodoverlay) | ON | - |
 | Skin Type<br>`track` | Select which skin type to use in the [Skin Type List.](#skin-type-list)<br><i>- This track bar is shown when "Sync Skin Type to Root" is disabled.</i> | 1 | 1 ~ 56 |
 | Animation Speed<br>`value` | Adjust animation speed | 1.00 | - |
 | Max LIFE<br>`track` | Amount of LIFE for the bar to be completely filled | 1000 | 1 ~ 99999 |
@@ -247,9 +247,9 @@ Options below will be shown if "Custom Skin" is enabled.
 
 | Name | Description | Default | Range |
 | --- | --- | :---: | :---: |
-| Sync Skin Type to Root<br>`check` | Sync the skin type value from [Root@holodOverlay](#rootholodoverlay) | <input type="checkbox" disabled checked> ON | - |
+| Sync Skin Type to Root<br>`check` | Sync the skin type value from [Root@holodOverlay](#rootholodoverlay) | ON | - |
 | Skin Type<br>`track` | Select which skin type to use in the [Skin Type List.](#skin-type-list)<br><i>- This track bar is shown when "Sync Skin Type to Root" is disabled.</i> | 1 | 1 ~ 56 |
-| Disable Pause<br>`check` | Make the pause button turn gray | <input type="checkbox" disabled> OFF | - |
+| Disable Pause<br>`check` | Make the pause button turn gray | OFF | - |
 
 ### Live Skin (Custom)
 Options below will be shown if "Custom Skin" is enabled.
@@ -267,11 +267,11 @@ Options below will be shown if "Custom Skin" is enabled.
 | Name | Description | Default | Range |
 | --- | --- | :---: | :---: |
 | X-axis Boundary<br>`track` | Adjust the width of the drawing area in the element<br><i>- This track bar may be needed when you use very large numbers.</i> | 1024 | 0 ~ 9999 |
-| Sync Skin Type to Root<br>`check` | Sync the skin type value from [Root@holodOverlay](#rootholodoverlay) | <input type="checkbox" disabled checked> ON | - |
+| Sync Skin Type to Root<br>`check` | Sync the skin type value from [Root@holodOverlay](#rootholodoverlay) | ON | - |
 | Skin Type<br>`track` | Select which skin type to use in the [Skin Type List.](#skin-type-list)<br><i>- This track bar is shown when "Sync Skin Type to Root" is disabled.</i> | 1 | 1 ~ 56 |
 | Animation Speed<br>`value` | Adjust animation speed | 1.00 | - |
 | AP/FC<br>`track` | Adjust which clear type to show in the combo background<br>`0` = OFF, `1` = FC, `2` = AP | 2 | 0 ~ 2 |
-| Show 0 Combo<br>`check` | Toggle showing the 0th combo before the first event | <input type="checkbox" disabled> OFF | - |
+| Show 0 Combo<br>`check` | Toggle showing the 0th combo before the first event | OFF | - |
 
 ### Live Skin (Custom)
 Options below will be shown if "Custom Skin" is enabled.
@@ -290,11 +290,11 @@ Options below will be shown if "Custom Skin" is enabled.
 | Name | Description | Default | Range |
 | --- | --- | :---: | :---: |
 | X-axis Boundary<br>`track` | Adjust the width of the drawing area in the element<br><i>- This track bar may be needed when you use very large numbers.</i> | 1024 | 0 ~ 9999 |
-| Sync Skin Type to Root<br>`check` | Sync the skin type value from [Root@holodOverlay](#rootholodoverlay) | <input type="checkbox" disabled checked> ON | - |
+| Sync Skin Type to Root<br>`check` | Sync the skin type value from [Root@holodOverlay](#rootholodoverlay) | ON | - |
 | Skin Type<br>`track` | Select which skin type to use in the [Skin Type List.](#skin-type-list)<br><i>- This track bar is shown when "Sync Skin Type to Root" is disabled.</i> | 1 | 1 ~ 56 |
 | Animation Speed<br>`value` | Adjust animation speed | 1.00 | - |
 | Judge Type<br>`track` | Adjust which judge type to show | 1 | 1 ~ 6 |
-| Show Judge Indefinitely<br>`check` | Toggle showing the judge that remains visible throughout the event | - [ ] OFF | - |
+| Show Judge Indefinitely<br>`check` | Toggle showing the judge that remains visible throughout the event | OFF | - |
 
 ### Live Skin (Custom)
 Options below will be shown if "Custom Skin" is enabled.
@@ -307,6 +307,17 @@ Options below will be shown if "Custom Skin" is enabled.
 | Judge 4<br>`file` | <img src="./icons/img_live_skin_judge_default-01-bad.png" width=25%> | - |
 | Judge 5<br>`file` | <img src="./icons/img_live_skin_judge_default-01-miss.png" width=25%> | - |
 | Judge 6<br>`file` | <img src="./icons/img_live_skin_judge_default-01-auto.png" width=25%> | - |
+
+# Common Problems
+### Changing system locale
+Change your system locale to `Japanese (Japan)`: `Settings > Time & Language > Language > Administrative language settings > "Administrative" tab > Change system locale...`
+
+<img width=40% height=40% alt="image" src="https://github.com/user-attachments/assets/0b5b680a-56cf-4cdb-8bb9-f10a50d7c07a" />
+
+### The animation slowing down when importing
+Go to `File > New Project` and set frame rate to 60. The change will be reflected in future imports.
+
+<img width="418" height="178" alt="image" src="https://github.com/user-attachments/assets/6bff30c3-fb67-4169-931f-b3df7c7d65f6" />
 
 # Extras
 
