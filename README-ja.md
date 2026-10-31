@@ -31,7 +31,7 @@
 
 # holodOverlay / ホロドリ風動画作成補助ツール
 
-**[TootieJin](https://tootiejin.com)によるholodOverlay**は、ホロドリの創作譜面をホロドリ風の動画にするためのオープンソースのツールです。このツールは、公式ゲーム内のカスタムチャートと全く同じ見た目を再現しつつ、動画編集ソフト（AviUtl ExEdit2）を使用してUI（HUD）を「操作」する機能を提供します。
+**[TootieJin](https://tootiejin.com)によるholodOverlay**は、ホロドリの創作譜面をホロドリ風の動画にするためのオープンソースのツールです。このツールは、公式ゲーム内の創作譜面トと全く同じ見た目を再現しつつ、動画編集ソフト（AviUtl ExEdit2）を使用してUI（HUD）を「操作」する機能を提供します。
 
 ## 主な機能
 このツールは、[pjsekai-overlay-APPEND](https://github.com/TootieJin/pjsekai-overlay-APPEND) という別のツールのホロドリ版であり、以下のような追加機能を備えています：
@@ -115,7 +115,7 @@ holodOverlay - ホロドリ風動画作成補助ツール：
 
 ## 利用方法
 
-作業中。
+利用ガイドについては、[Wikiページ](https://github.com/TootieJin/holodOverlay/wiki)をご覧ください。
 
 > [!NOTE]
 > 情報を更新する場合がありますので、Wikiを頻繁に確認してください。

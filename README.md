@@ -116,7 +116,7 @@ holodOverlay - ホロドリ風動画作成補助ツール：
 
 ## Usage Guide
 
-Work in progress.
+Go to [the wiki page](https://github.com/TootieJin/holodOverlay/wiki) for the Usage Guide.
 
 > [!NOTE]
 > Please check the wiki often, as we may update information.

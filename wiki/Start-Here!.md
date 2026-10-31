@@ -13,7 +13,7 @@
 > Unlike [pjsekai-overlay-APPEND](https://github.com/TootieJin/pjsekai-overlay-APPEND), this tool **does not support AviUtl** (old version).
 
 # Video Guide
-You'll need a clean recording that has BLACK background & ALL UI hidden (including lanes) like in the screenshot below:
+You'll need a clean recording that has **BLACK background & ALL UI hidden (including lanes)** like in the screenshot below:
 
 <img src="./icons/recording-example.png" width=512><br>
 
@@ -142,7 +142,7 @@ Below will provide all adjustments you can make on all holodOverlay elements, al
 
 | Name | Description | Default | Range |
 | --- | --- | :---: | :---: |
-| YAGOO File<br>`file` | Selects a `.yagoo` file to be used for parsing events Score, Combo, etc. | - | - |
+| YAGOO File<br>`file` | Selects a `.yagoo` file to be used for parsing events (Score, Combo, etc.) | - | - |
 | Offset<br>`track` | Number of frames to shift events<br>- Increase to shift timing later<br>- Decrease to shift timing earlier | 216.00 | -99999.99 ~ 99999.99 |
 | Cache<br>`check` | Cache the data in the `data.yagoo` file. When cache is set to 0, any change in the `data.yagoo` is applied immediately | ON | - |
 | Ignore Warning<br>`check` | <img src="./icons/warning.png"><br>Disable showing the yellow warning text at the bottom of the preview<br><i>- These texts will not be rendered when exporting</i> | OFF | - |
@@ -174,6 +174,8 @@ Options below will be shown if "Dynamic Lane (Experimental)" is enabled.
 | Judgement Line Pos<br>`track` | Adjust the vertical position of the judgement line<br>- Increase to move up<br>- Decrease to move down | 0.00 | -1000.00 ~ 1000.00 |
 | Left Lane<br>`track` | Adjust the left side of the lane. Each unit is the number of slots from the center<br><i>- This track bar is made in a way that dragging to the left (decreasing) moves the left lane to the left, and vice versa</i> | -6.00 | -48.00 ~ 48.00 |
 | Right Lane<br>`track` | Adjust the right side of the lane. Each unit is the number of slots from the center<br><i>- This track bar is made in a way that dragging to the right (increasing) moves the right lane to the right, and vice versa</i> | 6.00 | -48.00 ~ 48.00 |
+| Lane Transparency<br>`track` | Adjust the transparency of the lane background<br>The higher the value, the more invisible it is | 20.00 | 0 ~ 100 |
+| Lane per Division<br>`track` | Draw outline divisions per number of lanes<br>`0` = OFF | 2 | 0 ~ 96 |
 
 ### Live Skin (Custom)
 Options below will be shown if "Custom Skin" AND "Dynamic Lane (Experimental)" are enabled.
@@ -289,7 +291,7 @@ Options below will be shown if "Custom Skin" is enabled.
 
 | Name | Description | Default | Range |
 | --- | --- | :---: | :---: |
-| X-axis Boundary<br>`track` | Adjust the width of the drawing area in the element<br><i>- This track bar may be needed when you use very large numbers.</i> | 1024 | 0 ~ 9999 |
+| X-axis Boundary<br>`track` | Adjust the width of the drawing area in the element | 1024 | 0 ~ 9999 |
 | Sync Skin Type to Root<br>`check` | Sync the skin type value from [Root@holodOverlay](#rootholodoverlay) | ON | - |
 | Skin Type<br>`track` | Select which skin type to use in the [Skin Type List.](#skin-type-list)<br><i>- This track bar is shown when "Sync Skin Type to Root" is disabled.</i> | 1 | 1 ~ 56 |
 | Animation Speed<br>`value` | Adjust animation speed | 1.00 | - |
