@@ -21,7 +21,6 @@
 
 [設定@holodOverlay]
 設定@holodOverlay=Root@holodOverlay
-スキンタイプを設定に同期=Sync Skin Type to Root
 YAGOOファイル=YAGOO File
 オフセット=Offset
 キャッシュ=Cache
@@ -80,7 +79,6 @@ X軸境界=X-axis Boundary
 
 [一時停止@holodOverlay]
 一時停止@holodOverlay=Pause@holodOverlay
-X軸境界=X-axis Boundary
 スキンタイプを設定に同期=Sync Skin Type to Root
 スキンタイプ=Skin Type
 一時停止無効=Disable Pause

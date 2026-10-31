@@ -406,26 +406,6 @@ if YAGOO_DATA.b and YAGOO_DATA.version_status == "ok" then
   obj.draw(0, 0, 0, (obj.screen_h / 1080) * ((obj.screen_w / obj.screen_h) / (16/9)), 1)
 end
 
-if not obj.getinfo("saving") and ignoreWarn == 0 then
-  obj.setfont(Font[2], 40, 0, 0xffff00, 0x000000, false, false, 0, -30)
-  if obj.framerate ~= 60 then
-    obj.load("text",
-      "(! WARNING !)\n"..
-      "Your frame rate is not 60FPS ("..obj.framerate.."), so element durations may unintentionally be adjusted.\n"..
-      "フレームレートが60FPS ("..obj.framerate.."）ではないため、要素の再生時間が意図せず調整される場合があります。",
-      0, 0, 4
-    )
-  elseif obj.screen_w ~= 1920 or obj.screen_h ~= 1080 then
-    obj.load("text",
-      "(! WARNING !)\n"..
-      "Your screen resolution is not 1920x1080 ("..obj.screen_w.."x"..obj.screen_h.."), so element positions may be off.\n"..
-      "画面解像度が1920x1080 ("..obj.screen_w.."x"..obj.screen_h.."）ではないため、要素の位置がずれる可能性があります。",
-      0, 0, 4
-    )
-  end
-  obj.draw(0, obj.screen_h * 0.45, 0, 0.7 * (obj.screen_h / 1080) * ((obj.screen_w / obj.screen_h) / (16/9)), 0.7)
-end
-
 if YAGOO_DATA.integrity == nil then
   YAGOO_DATA.integrity = SHA256(YAGOO_DATA.path.."/holodOverlay-logo-mark.png") == "ed050e14a7b0b412cd4862825bbe82ad5b7ab4852d366326034cd12be15fcb8c"
 end
@@ -441,6 +421,7 @@ if YAGOO_DATA.version_status == "ok" and not YAGOO_DATA.integrity then
   YAGOO_DATA.version_status = "ng"
 end
 WATERMARK = watermark
+IGNOREWARN = ignoreWarn
 
 --------------------------------------------------------------------------------------------------------------------------------
 @レーン
@@ -483,6 +464,37 @@ if rootSync == 1 then skinTypeLane = SKINTYPE end
 if customSkin == 1 then skinTypeLane = 1 end
 if customSkin == 1 then scoreCol = scoreCol else scoreCol = Code[((skinTypeLane - 1) * 5) + 2] end
 if customSkin == 1 then lifeCol = lifeCol else lifeCol = Code[((skinTypeLane - 1) * 5) + 3] end
+
+local function showWarningOrWatermark()
+  warning = false
+  if not obj.getinfo("saving") and IGNOREWARN == 0 then
+    obj.setfont(Font[2], 40, 0, 0xffff00, 0x000000, false, false, 0, -30)
+    if obj.framerate ~= 60 then
+      obj.load("text",
+        "(! WARNING !)\n"..
+        "Your frame rate is not 60FPS ("..obj.framerate.."), so element durations may unintentionally be adjusted.\n"..
+        "フレームレートが60FPS ("..obj.framerate.."）ではないため、要素の再生時間が意図せず調整される場合があります。",
+        0, 0, 4
+      )
+      obj.draw(0, obj.screen_h * 0.45, 0, 0.7 * (obj.screen_h / 1080) * ((obj.screen_w / obj.screen_h) / (16/9)), 0.7)
+      warning = true
+    elseif obj.screen_w ~= 1920 or obj.screen_h ~= 1080 then
+      obj.load("text",
+        "(! WARNING !)\n"..
+        "Your screen resolution is not 1920x1080 ("..obj.screen_w.."x"..obj.screen_h.."), so element positions may be off.\n"..
+        "画面解像度が1920x1080 ("..obj.screen_w.."x"..obj.screen_h.."）ではないため、要素の位置がずれる可能性があります。",
+        0, 0, 4
+      )
+      obj.draw(0, obj.screen_h * 0.45, 0, 0.7 * (obj.screen_h / 1080) * ((obj.screen_w / obj.screen_h) / (16/9)), 0.7)
+      warning = true
+    end
+  end
+  
+  if WATERMARK == 1 and YAGOO_DATA.version_status == "ok" and not warning then
+    obj.load("image", YAGOO_DATA.path.."/holodOverlay-logo-mark.png")
+    obj.draw(0, obj.screen_h * 0.45, 0, 0.4 * (obj.screen_h / 1080) * ((obj.screen_w / obj.screen_h) / (16/9)), 0.2)
+  end
+end
 
 if YAGOO_DATA and YAGOO_DATA.version_status == "ok" then
   if dynamicLane == 1 then
@@ -604,6 +616,8 @@ if YAGOO_DATA and YAGOO_DATA.version_status == "ok" then
     obj.load("image", iconFile)
     Draw_C_Old(0, 330, 0, 0.2, 1, -48, 0, 0, shiftL2 + 275, judgelineVPos2, 0)
     Draw_C_Old(0, 330, 0, 0.2, 1, -48, 0, 0, shiftR2 - 275, judgelineVPos2, 0)
+
+    showWarningOrWatermark()
   else
     obj.setoption("drawtarget", "tempbuffer", 2360, 1640)
   
@@ -612,18 +626,10 @@ if YAGOO_DATA and YAGOO_DATA.version_status == "ok" then
     obj.effect("マスク", "サイズ", 3000, "マスクの種類", "三角形")
     obj.draw(0, 0, 0, 0.815, 1)
 
-    if WATERMARK == 1 and YAGOO_DATA.version_status == "ok" then
-      obj.load("image", YAGOO_DATA.path.."/holodOverlay-logo-mark.png")
-      obj.draw(0, obj.screen_h * 0.45, 0, 0.4 * (obj.screen_h / 1080) * ((obj.screen_w / obj.screen_h) / (16/9)), 0.2)
-    end
+    showWarningOrWatermark()
   
     obj.copybuffer("object", "tempbuffer")
   end
-end
-
-if WATERMARK == 1 and YAGOO_DATA.version_status == "ok" and dynamicLane == 1 then
-  obj.load("image", YAGOO_DATA.path.."/holodOverlay-logo-mark.png")
-  obj.draw(0, obj.screen_h * 0.45, 0, 0.4 * (obj.screen_h / 1080) * ((obj.screen_w / obj.screen_h) / (16/9)), 0.2)
 end
 
 --[[
