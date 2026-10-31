@@ -237,7 +237,7 @@ func origMain(isOptionSpecified bool) {
 	flag.BoolVar(&enUI, "en-ui", false, "英語UIを使う。(Use English UI.)")
 
 	var ignoreDamage bool
-	flag.BoolVar(&ignoreDamage, "ignore-dmg", false, "ダメージノーツを無視します。(Ignore damage notes.)")
+	flag.BoolVar(&ignoreDamage, "ignore-dmg", true, "ダメージノーツを無視します。(Ignore damage notes.)")
 
 	var difficulty string
 	flag.StringVar(&difficulty, "difficulty", "", "難易度を指定します。\nSpecify the difficulty.\n[EASY, NORMAL, HARD, EXPERT, CREATE]")
@@ -272,7 +272,7 @@ func origMain(isOptionSpecified bool) {
 		fmt.Println(color.RedString(fmt.Sprintf("FAIL: %s", err.Error())))
 		return
 	} else if locale != "ja-JP" {
-		fmt.Println(color.CyanString("INFO: お使いのシステムロケールが「日本語（日本）」に設定されていません。変更しますか？[Y/N]\nYour system locale is not set to \"Japanese (Japan)\". Do you want to change it? [Y/N]\n> "))
+		fmt.Print(color.CyanString("\nINFO: お使いのシステムロケールが「日本語（日本）」に設定されていません。変更しますか？[Y/N]\nYour system locale is not set to \"Japanese (Japan)\". Do you want to change it? [Y/N]"))
 		before, _ := rawmode.Enable()
 		tmpChangeLocaleByte, _ := bufio.NewReader(os.Stdin).ReadByte()
 		tmpChangeLocale := string(tmpChangeLocaleByte)
@@ -283,7 +283,7 @@ func origMain(isOptionSpecified bool) {
 				fmt.Println(color.RedString(fmt.Sprintf("FAIL: %s", err.Error())))
 				return
 			} else {
-				fmt.Println(color.HiYellowString("WARN: AviUtl ExEdit2を使用できるように、システムのロケールを「日本語（日本）」に変更しました。\n変更を有効にするには、PCを再起動する必要があります。\nSystem locale has been changed to \"Japanese (Japan)\" to be able to use AviUtl ExEdit2.\nYou must restart your computer for it to take effect.\n"))
+				fmt.Println(color.HiYellowString("WARN: AviUtl ExEdit2を使用できるように、システムのロケールを「日本語（日本）」に変更しました。\n変更を有効にするには、PCを再起動する必要があります。\nSystem locale has been changed to \"Japanese (Japan)\" to be able to use AviUtl ExEdit2.\nYou must restart your computer for it to take effect.\n\n- 何かキーを押すと続行します...\n- Press any key to continue..."))
 				before, _ := rawmode.Enable()
 				bufio.NewReader(os.Stdin).ReadByte()
 				rawmode.Restore(before)
@@ -297,7 +297,7 @@ func origMain(isOptionSpecified bool) {
 
 	if shouldCheckUpdate() {
 		if !isOptionSpecified && checkUpdate() {
-			fmt.Print("\n最新リリースのページを開きますか？[Y/N]\nDo you want to open the latest release page? [Y/N]\n> ")
+			fmt.Print("\n最新リリースのページを開きますか？[Y/N]\nDo you want to open the latest release page? [Y/N]")
 			before, _ := rawmode.Enable()
 			tmpOpenBrowserByte, _ := bufio.NewReader(os.Stdin).ReadByte()
 			tmpOpenBrowser := string(tmpOpenBrowserByte)
@@ -541,11 +541,11 @@ func origMain(isOptionSpecified bool) {
 			tmpIgnoreDmg := string(tmpIgnoreDmgByte)
 			rawmode.Restore(before)
 			if tmpIgnoreDmg == "Y" || tmpIgnoreDmg == "y" {
-				ignoreDamage = false
+				ignoreDamage = true
 				fmt.Printf("\n\033[A\033[2K\r> %s\n", color.GreenString(tmpIgnoreDmg))
 				fmt.Println(color.GreenString("TOGGLE: ON"))
 			} else {
-				ignoreDamage = true
+				ignoreDamage = false
 				fmt.Printf("\n\033[A\033[2K\r> %s\n", color.RedString(tmpIgnoreDmg))
 				fmt.Println(color.RedString("TOGGLE: OFF"))
 			}

@@ -330,7 +330,7 @@ func WriteYagooFile(frames []YagooFrame, assets string, path string, levelInfo s
 	lastRankPlus := 0
 	for i, frame := range frames {
 		score := frame.Score
-		frameScore := math.Trunc(score - lastScore)
+		frameScore := math.Round(score - lastScore)
 		lastScore = frame.Score
 
 		rankIndex := 1
