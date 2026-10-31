@@ -90,7 +90,7 @@ Follow the steps below:
 9. Once finished, export your video as mp4: `File > Export > MP4 Exporter (by えすご/Esugo)`
 
 # Command-Line (Console) Usage
-holodOverlay can be used in a command line for faster and direct usage. Open `cmd` or `powershell` in the `holodOverlay-{version}` folder and use:
+holodOverlay can be used in a command line for faster and direct usage. Open `cmd` or `powershell` in the `/holodOverlay-{version}` folder and use:
 ```
 ./holodOverlay
 ```
@@ -130,7 +130,7 @@ Usage: holodOverlay [オプション (Options)] [譜面ID (Chart ID)]
 Below will provide all adjustments you can make on all holodOverlay elements, along with <u>Custom Skins</u>.
 
 > [!TIP]
-> You can <u>save your configurations</u> by creating alias / saving alias as file (`.object`). Alias can then be drag-and-dropped into the timeline to insert holodOverlay elements with your configurations.\
+> You can <u>save your configurations</u> by creating alias / saving alias as file (`.object`). Alias can then be drag-and-dropped into the timeline to insert holodOverlay elements with your configurations.<br>
 > <u>**NOTE: Remember to change your `data.yagoo` when switching to other charts this way!**</u> <br><br>
 > <img src="./icons/save-alias.png" width=50%>
 
@@ -294,19 +294,19 @@ Options below will be shown if "Custom Skin" is enabled.
 | Skin Type<br>`track` | Select which skin type to use in the [Skin Type List.](#skin-type-list)<br><i>- This track bar is shown when "Sync Skin Type to Root" is disabled.</i> | 1 | 1 ~ 56 |
 | Animation Speed<br>`value` | Adjust animation speed | 1.00 | - |
 | Judge Type<br>`track` | Adjust which judge type to show | 1 | 1 ~ 6 |
-| Show Judge Indefinitely<br>`check` | Toggle showing the judge that remains visible throughout the event | <input type="checkbox" disabled> OFF | - |
+| Show Judge Indefinitely<br>`check` | Toggle showing the judge that remains visible throughout the event | - [ ] OFF | - |
 
 ### Live Skin (Custom)
 Options below will be shown if "Custom Skin" is enabled.
 
 | Name | Description | Default |
 | --- | --- | :---: |
-| Judge 1<br>`file` | <img src="./icons/img_live_skin_judge_default-01-perfect.png" width=50%> | - |
-| Judge 2<br>`file` | <img src="./icons/img_live_skin_judge_default-01-great.png" width=50%> | - |
-| Judge 3<br>`file` | <img src="./icons/img_live_skin_judge_default-01-good.png" width=50%> | - |
-| Judge 4<br>`file` | <img src="./icons/img_live_skin_judge_default-01-bad.png" width=50%> | - |
-| Judge 5<br>`file` | <img src="./icons/img_live_skin_judge_default-01-miss.png" width=50%> | - |
-| Judge 6<br>`file` | <img src="./icons/img_live_skin_judge_default-01-auto.png" width=50%> | - |
+| Judge 1<br>`file` | <img src="./icons/img_live_skin_judge_default-01-perfect.png" width=25%> | - |
+| Judge 2<br>`file` | <img src="./icons/img_live_skin_judge_default-01-great.png" width=25%> | - |
+| Judge 3<br>`file` | <img src="./icons/img_live_skin_judge_default-01-good.png" width=25%> | - |
+| Judge 4<br>`file` | <img src="./icons/img_live_skin_judge_default-01-bad.png" width=25%> | - |
+| Judge 5<br>`file` | <img src="./icons/img_live_skin_judge_default-01-miss.png" width=25%> | - |
+| Judge 6<br>`file` | <img src="./icons/img_live_skin_judge_default-01-auto.png" width=25%> | - |
 
 # Extras
 

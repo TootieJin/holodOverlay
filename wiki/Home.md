@@ -8,7 +8,7 @@ This wiki includes a guide for using holodOverlay. The following will be covered
 - **UI Customization Specifications**
 - **Common Problems:** Fixing common issues when encountering them
 
-> [!WARNING]
+> [!CAUTION]
 > **Before using holodOverlay:** This tool is primary only for people with **technical know-how and basic knowledge of AviUtl ExEdit2.** \
 > Only use this tool if you can figure it out yourself. If problems arise, **please [make a discussion thread.](https://github.com/TootieJin/holodOverlay/discussions)** \
 > Please also read the [Terms of Use](https://github.com/TootieJin/holodOverlay#terms-of-use) after using the tool.
