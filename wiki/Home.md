@@ -5,8 +5,10 @@ This wiki includes a guide for using holodOverlay. The following will be covered
 - **Requirements**
 - **Video Guide:** A guide to recording your charts
 - **Usage Guide:** A guide to setting up holodOverlay for AviUtl ExEdit2 and use it
+- **Command-Line (Console) Usage:** Using holodOverlay in a command line (like `cmd` or `powershell`)
 - **UI Customization Specifications**
 - **Common Problems:** Fixing common issues when encountering them
+- **Extras**
 
 > [!CAUTION]
 > **Before using holodOverlay:** This tool is primary only for people with **technical know-how and basic knowledge of AviUtl ExEdit2.** \
@@ -23,8 +25,10 @@ This wiki includes a guide for using holodOverlay. The following will be covered
 - **必須事項**
 - **動画の作り方：** 譜面を撮影の手順を解説
 - **利用方法：** AviUtl ExEdit2でのholodOverlayの設定方法と使用方法に関するガイド
+- **コマンドライン（コンソール）での使用方法：** コマンドライン（`cmd` や `powershell` など）で holodOverlay を使用する場合
 - **UIカスタマイズ仕様**
 - **よくある問題：** 発生時の解決方法
+- **追加情報**
 
 > [!CAUTION]
 > **holodOverlay使用前に：** このツールは主に、**技術的な知識とAviUtl ExEdit2の基本的な理解がある方**のみを対象としています。\
