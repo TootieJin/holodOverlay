@@ -70,6 +70,10 @@
 
 https://github.com/user-attachments/assets/d83ed282-73db-417d-b25c-c5a701635bcc
 
+### • ライブスキンUIのプレビュー
+
+<img src="./icons/ui-test.gif">
+
 ### • AviUtl ExEdit2のプレビュー
 
 <img src="./icons/aviutl2-preview.png">

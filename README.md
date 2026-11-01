@@ -70,6 +70,10 @@ This repo is a holodori-variant of another tool called [pjsekai-overlay-APPEND](
 
 https://github.com/user-attachments/assets/d83ed282-73db-417d-b25c-c5a701635bcc
 
+### • Live Skin UI Preview
+
+<img src="./icons/ui-test.gif">
+
 ### • AviUtl ExEdit2 Preview
 
 <img src="./icons/aviutl2-preview.png">
