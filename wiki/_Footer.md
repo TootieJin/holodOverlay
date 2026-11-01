@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./icons/holodOverlay-icon.png" width="120"><img src="./icons/holodOverlay-logo-color.png" width=50%>
+  <img src="./icons/holodOverlay-icon.png" width=120><img src="./icons/holodOverlay-logo-color.png" width=480>
 </p>
 
 <p align="center">
