@@ -329,21 +329,21 @@ Below lists all holomem skins configurations in order.
 ```lua
 Code = { -- internal ID, score, life, pause, score decoration
   "default-01", 0x28c3ff, 0x28c3ff, 0x5fdcf0, 0, -- 1. Default
-  "00001", 0x6878ff, 0x6878ff, 0xfd368a, 1,      -- 2. Tokina Sora
+  "00001", 0x6878ff, 0x6878ff, 0xfd368a, 1,      -- 2. Tokino Sora
   "00002", 0xff6187, 0xff6187, 0xfd91b7, 1,      -- 3. Robocosan
-  "00004", 0xabe64d, 0xabe64d, 0xff4991, 1,      -- 4. AZKi
-  "00005", 0xe5395b, 0xe5395b, 0x0046b3, 1,      -- 5. Sakura Miko
-  "00006", 0x93d5f2, 0x93d5f2, 0x65637f, 1,      -- 6. Hoshimachi Suisei
-  "00007", 0xffcb30, 0xffcb30, 0x8dd600, 1,      -- 7. Aki Rosenthal
-  "00010", 0xdd305b, 0xdd305b, 0x8a6f72, 1,      -- 8. Akai Haato
-  "00011", 0xff5487, 0xff5487, 0xff85bc, 1,      -- 9. Shirakami Fubuki
-  "00012", 0xe5ce00, 0xe5ce00, 0x5cd0dc, 1,      -- 10. Natsuiro Matsuri
-  "00013", 0xf081a3, 0xf081a3, 0x634c59, 1,      -- 11. Nakiri Ayame
-  "00014", 0xdb3131, 0xdb3131, 0x575769, 1,      -- 12. Yuzuki Choco
-  "00015", 0xff909e, 0xff909e, 0xdd3654, 1,      -- 13. Oozora Subaru
-  "00016", 0xd866ed, 0xd866ed, 0x9a70f3, 1,      -- 14. Ookami Mio
-  "00017", 0xffcd28, 0xffcd28, 0xff637c, 1,      -- 15. Nekomata Okayu
-  "00018", 0x75c0ff, 0x75c0ff, 0x2b2d80, 1,      -- 16. Inugami Korone
+  "00004", 0xabe64d, 0xabe64d, 0xff4991, 1,      -- 4. Aki Rosenthal
+  "00005", 0xe5395b, 0xe5395b, 0x0046b3, 1,      -- 5. Akai Haato
+  "00006", 0x93d5f2, 0x93d5f2, 0x65637f, 1,      -- 6. Shirakami Fubuki
+  "00007", 0xffcb30, 0xffcb30, 0x8dd600, 1,      -- 7. Natsuiro Matsuri
+  "00010", 0xdd305b, 0xdd305b, 0x8a6f72, 1,      -- 8. Nakiri Ayame
+  "00011", 0xff5487, 0xff5487, 0xff85bc, 1,      -- 9. Yuzuki Choco
+  "00012", 0xe5ce00, 0xe5ce00, 0x5cd0dc, 1,      -- 10. Oozora Subaru
+  "00013", 0xf081a3, 0xf081a3, 0x634c59, 1,      -- 11. AZKi
+  "00014", 0xdb3131, 0xdb3131, 0x575769, 1,      -- 12. Ookami Mio
+  "00015", 0xff909e, 0xff909e, 0xdd3654, 1,      -- 13. Sakura Miko
+  "00016", 0xd866ed, 0xd866ed, 0x9a70f3, 1,      -- 14. Nekomata Okayu
+  "00017", 0xffcd28, 0xffcd28, 0xff637c, 1,      -- 15. Inugami Korone
+  "00018", 0x75c0ff, 0x75c0ff, 0x2b2d80, 1,      -- 16. Hoshimachi Suisei
   "00019", 0x57a9ff, 0x57a9ff, 0x97daef, 1,      -- 17. Usada Pekora
   "00021", 0xffab2d, 0xffab2d, 0x4ab0e9, 1,      -- 18. Shiranui Flare
   "00022", 0xa5b5b7, 0xa5b5b7, 0x4f6e8f, 1,      -- 19. Shirogane Noel
